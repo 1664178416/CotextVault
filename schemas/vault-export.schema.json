@@ -1,0 +1,379 @@
+{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "$id":  "https://contextvault.local/schemas/vault-export.schema.json",
+    "title":  "ContextVault Vault Export",
+    "type":  "object",
+    "additionalProperties":  false,
+    "required":  [
+                     "schemaVersion",
+                     "exportedAt",
+                     "archives",
+                     "memoryCards"
+                 ],
+    "properties":  {
+                       "schemaVersion":  {
+                                             "const":  1
+                                         },
+                       "exportedAt":  {
+                                          "type":  "string",
+                                          "format":  "date-time",
+                                          "pattern":  "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                                      },
+                       "archives":  {
+                                        "type":  "array",
+                                        "maxItems":  2000,
+                                        "items":  {
+                                                      "$ref":  "#/$defs/archiveWithTurns"
+                                                  }
+                                    },
+                       "memoryCards":  {
+                                           "type":  "array",
+                                           "maxItems":  20000,
+                                           "items":  {
+                                                         "$ref":  "#/$defs/memoryCard"
+                                                     }
+                                       }
+                   },
+    "$defs":  {
+                  "archiveWithTurns":  {
+                                           "type":  "object",
+                                           "additionalProperties":  false,
+                                           "required":  [
+                                                            "archive",
+                                                            "turns"
+                                                        ],
+                                           "properties":  {
+                                                              "archive":  {
+                                                                              "$ref":  "#/$defs/sourceArchive"
+                                                                          },
+                                                              "turns":  {
+                                                                            "type":  "array",
+                                                                            "maxItems":  1000,
+                                                                            "items":  {
+                                                                                          "$ref":  "#/$defs/sourceTurn"
+                                                                                      }
+                                                                        }
+                                                          }
+                                       },
+                  "sourceArchive":  {
+                                        "type":  "object",
+                                        "additionalProperties":  false,
+                                        "required":  [
+                                                         "id",
+                                                         "provider",
+                                                         "captureMethod",
+                                                         "capturedAt",
+                                                         "contentHash",
+                                                         "schemaVersion",
+                                                         "warnings"
+                                                     ],
+                                        "properties":  {
+                                                           "id":  {
+                                                                      "type":  "string",
+                                                                      "minLength":  1,
+                                                                      "maxLength":  512
+                                                                  },
+                                                           "provider":  {
+                                                                            "$ref":  "#/$defs/providerId"
+                                                                        },
+                                                           "providerConversationId":  {
+                                                                                          "type":  "string",
+                                                                                          "maxLength":  512
+                                                                                      },
+                                                           "title":  {
+                                                                         "type":  "string",
+                                                                         "maxLength":  500
+                                                                     },
+                                                           "url":  {
+                                                                       "type":  "string",
+                                                                       "maxLength":  4096
+                                                                   },
+                                                           "captureMethod":  {
+                                                                                 "type":  "string",
+                                                                                 "enum":  [
+                                                                                              "official_export",
+                                                                                              "main_world_network",
+                                                                                              "devtools_network",
+                                                                                              "dom",
+                                                                                              "clipboard"
+                                                                                          ]
+                                                                             },
+                                                           "capturedAt":  {
+                                                                              "type":  "string",
+                                                                              "format":  "date-time",
+                                                                              "pattern":  "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                                                                          },
+                                                           "contentHash":  {
+                                                                               "type":  "string",
+                                                                               "minLength":  1,
+                                                                               "maxLength":  512
+                                                                           },
+                                                           "schemaVersion":  {
+                                                                                 "const":  1
+                                                                             },
+                                                           "warnings":  {
+                                                                            "type":  "array",
+                                                                            "items":  {
+                                                                                          "$ref":  "#/$defs/captureWarning"
+                                                                                      },
+                                                                            "maxItems":  100
+                                                                        }
+                                                       }
+                                    },
+                  "captureWarning":  {
+                                         "type":  "object",
+                                         "additionalProperties":  false,
+                                         "required":  [
+                                                          "code",
+                                                          "message"
+                                                      ],
+                                         "properties":  {
+                                                            "code":  {
+                                                                         "type":  "string",
+                                                                         "minLength":  1,
+                                                                         "maxLength":  120
+                                                                     },
+                                                            "message":  {
+                                                                            "type":  "string",
+                                                                            "minLength":  1,
+                                                                            "maxLength":  1000
+                                                                        }
+                                                        }
+                                     },
+                  "sourceTurn":  {
+                                     "type":  "object",
+                                     "additionalProperties":  false,
+                                     "required":  [
+                                                      "id",
+                                                      "archiveId",
+                                                      "role",
+                                                      "text",
+                                                      "orderIndex",
+                                                      "contentHash"
+                                                  ],
+                                     "properties":  {
+                                                        "id":  {
+                                                                   "type":  "string",
+                                                                   "minLength":  1,
+                                                                   "maxLength":  512
+                                                               },
+                                                        "archiveId":  {
+                                                                          "type":  "string",
+                                                                          "minLength":  1,
+                                                                          "maxLength":  512
+                                                                      },
+                                                        "providerTurnId":  {
+                                                                               "type":  "string",
+                                                                               "maxLength":  512
+                                                                           },
+                                                        "role":  {
+                                                                     "type":  "string",
+                                                                     "enum":  [
+                                                                                  "user",
+                                                                                  "assistant",
+                                                                                  "system",
+                                                                                  "tool",
+                                                                                  "unknown"
+                                                                              ]
+                                                                 },
+                                                        "text":  {
+                                                                     "type":  "string",
+                                                                     "minLength":  1,
+                                                                     "maxLength":  500000
+                                                                 },
+                                                        "createdAt":  {
+                                                                          "type":  "string",
+                                                                          "format":  "date-time",
+                                                                          "pattern":  "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                                                                      },
+                                                        "orderIndex":  {
+                                                                           "type":  "integer",
+                                                                           "minimum":  0
+                                                                       },
+                                                        "contentHash":  {
+                                                                            "type":  "string",
+                                                                            "minLength":  1,
+                                                                            "maxLength":  512
+                                                                        },
+                                                        "sourceSelector":  {
+                                                                               "type":  "string",
+                                                                               "maxLength":  1000
+                                                                           }
+                                                    }
+                                 },
+                  "memoryCard":  {
+                                     "type":  "object",
+                                     "additionalProperties":  false,
+                                     "required":  [
+                                                      "id",
+                                                      "type",
+                                                      "title",
+                                                      "body",
+                                                      "status",
+                                                      "scope",
+                                                      "sensitivity",
+                                                      "tags",
+                                                      "createdAt",
+                                                      "updatedAt",
+                                                      "sourceAnchors"
+                                                  ],
+                                     "properties":  {
+                                                        "id":  {
+                                                                   "type":  "string",
+                                                                   "minLength":  1,
+                                                                   "maxLength":  512
+                                                               },
+                                                        "batchId":  {
+                                                                        "type":  "string",
+                                                                        "maxLength":  512
+                                                                    },
+                                                        "projectId":  {
+                                                                          "type":  "string",
+                                                                          "maxLength":  512
+                                                                      },
+                                                        "type":  {
+                                                                     "type":  "string",
+                                                                     "enum":  [
+                                                                                  "project_fact",
+                                                                                  "decision",
+                                                                                  "todo",
+                                                                                  "preference",
+                                                                                  "method",
+                                                                                  "citation_anchor"
+                                                                              ]
+                                                                 },
+                                                        "title":  {
+                                                                      "type":  "string",
+                                                                      "minLength":  1,
+                                                                      "maxLength":  160
+                                                                  },
+                                                        "body":  {
+                                                                     "type":  "string",
+                                                                     "minLength":  1,
+                                                                     "maxLength":  20000
+                                                                 },
+                                                        "status":  {
+                                                                       "type":  "string",
+                                                                       "enum":  [
+                                                                                    "proposed",
+                                                                                    "accepted",
+                                                                                    "rejected",
+                                                                                    "archived",
+                                                                                    "superseded"
+                                                                                ]
+                                                                   },
+                                                        "scope":  {
+                                                                      "type":  "string",
+                                                                      "enum":  [
+                                                                                   "global",
+                                                                                   "project",
+                                                                                   "conversation"
+                                                                               ]
+                                                                  },
+                                                        "sensitivity":  {
+                                                                            "type":  "string",
+                                                                            "enum":  [
+                                                                                         "normal",
+                                                                                         "sensitive",
+                                                                                         "secret"
+                                                                                     ]
+                                                                        },
+                                                        "confidence":  {
+                                                                           "type":  "number",
+                                                                           "minimum":  0,
+                                                                           "maximum":  1
+                                                                       },
+                                                        "tags":  {
+                                                                     "type":  "array",
+                                                                     "items":  {
+                                                                                   "type":  "string",
+                                                                                   "minLength":  1,
+                                                                                   "maxLength":  80
+                                                                               },
+                                                                     "uniqueItems":  true,
+                                                                     "maxItems":  50
+                                                                 },
+                                                        "acceptedAt":  {
+                                                                           "type":  "string",
+                                                                           "format":  "date-time",
+                                                                           "pattern":  "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                                                                       },
+                                                        "dueAt":  {
+                                                                      "type":  "string",
+                                                                      "format":  "date-time",
+                                                                      "pattern":  "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                                                                  },
+                                                        "owner":  {
+                                                                      "type":  "string",
+                                                                      "maxLength":  200
+                                                                  },
+                                                        "createdAt":  {
+                                                                          "type":  "string",
+                                                                          "format":  "date-time",
+                                                                          "pattern":  "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                                                                      },
+                                                        "updatedAt":  {
+                                                                          "type":  "string",
+                                                                          "format":  "date-time",
+                                                                          "pattern":  "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                                                                      },
+                                                        "sourceAnchors":  {
+                                                                              "type":  "array",
+                                                                              "minItems":  1,
+                                                                              "items":  {
+                                                                                            "$ref":  "#/$defs/sourceAnchor"
+                                                                                        },
+                                                                              "maxItems":  50
+                                                                          }
+                                                    }
+                                 },
+                  "sourceAnchor":  {
+                                       "type":  "object",
+                                       "additionalProperties":  false,
+                                       "required":  [
+                                                        "id",
+                                                        "archiveId",
+                                                        "turnId"
+                                                    ],
+                                       "properties":  {
+                                                          "id":  {
+                                                                     "type":  "string",
+                                                                     "minLength":  1,
+                                                                     "maxLength":  512
+                                                                 },
+                                                          "archiveId":  {
+                                                                            "type":  "string",
+                                                                            "minLength":  1,
+                                                                            "maxLength":  512
+                                                                        },
+                                                          "turnId":  {
+                                                                         "type":  "string",
+                                                                         "minLength":  1,
+                                                                         "maxLength":  512
+                                                                     },
+                                                          "charStart":  {
+                                                                            "type":  "integer",
+                                                                            "minimum":  0
+                                                                        },
+                                                          "charEnd":  {
+                                                                          "type":  "integer",
+                                                                          "minimum":  0
+                                                                      },
+                                                          "quote":  {
+                                                                        "type":  "string",
+                                                                        "maxLength":  20000
+                                                                    }
+                                                      }
+                                   },
+                  "providerId":  {
+                                     "type":  "string",
+                                     "enum":  [
+                                                  "chatgpt",
+                                                  "gemini",
+                                                  "claude",
+                                                  "generic",
+                                                  "unknown"
+                                              ]
+                                 }
+              }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "contextvault",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @contextvault/extension",
+    "check": "npm run check -w @contextvault/extension",
+    "test": "npm run test -w @contextvault/extension",
+    "verify": "npm run check && npm run test && npm run build && npm audit"
+  }
+}

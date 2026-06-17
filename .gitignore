@@ -1,0 +1,12 @@
+node_modules/
+dist/
+apps/*/dist/
+packages/*/dist/
+.vite/
+.turbo/
+.cache/
+*.log
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
