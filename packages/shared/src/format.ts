@@ -117,9 +117,19 @@ export function formatMemoryCardsAsMarkdown(
       lines.push(`### ${formatPossiblyRedacted(card.title, options, effectiveSensitivity)}`, "");
       lines.push(formatPossiblyRedacted(card.body, options, effectiveSensitivity).trim(), "");
       lines.push(`- Type: ${getMemoryTypeLabel(card.type)}`);
+      lines.push(`- Card id: ${formatMemoryCardIdentifier(card.id)}`);
       lines.push(`- Status: ${card.status}`);
       lines.push(`- Scope: ${card.scope}`);
       lines.push(`- Sensitivity: ${effectiveSensitivity}`);
+      if (card.createdAt) {
+        lines.push(`- Created: ${card.createdAt}`);
+      }
+      if (card.updatedAt) {
+        lines.push(`- Updated: ${card.updatedAt}`);
+      }
+      if (card.acceptedAt) {
+        lines.push(`- Accepted: ${card.acceptedAt}`);
+      }
 
       if (card.owner) {
         lines.push(`- Owner: ${formatPossiblyRedacted(card.owner, options, effectiveSensitivity)}`);
@@ -357,5 +367,9 @@ function formatSourceAnchorIdentifier(
   identifier: string,
   _options: { redactSensitive?: boolean; redactionSensitivity?: Sensitivity }
 ): string {
+  return redactSensitiveText(identifier);
+}
+
+function formatMemoryCardIdentifier(identifier: string): string {
   return redactSensitiveText(identifier);
 }

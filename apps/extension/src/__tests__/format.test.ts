@@ -106,10 +106,33 @@ describe("markdown formatting", () => {
     expect(markdown).toContain("# ContextVault Memory Export");
     expect(markdown).toContain("## 待办事项");
     expect(markdown).toContain("### Use Side Panel");
+    expect(markdown).toContain("- Card id: card-1");
+    expect(markdown).toContain("- Created: 2026-06-08T00:00:00.000Z");
+    expect(markdown).toContain("- Updated: 2026-06-08T00:00:00.000Z");
     expect(markdown).toContain("- Owner: wyh");
     expect(markdown).toContain("- Due: 2026-06-09T00:00:00.000Z");
     expect(markdown).toContain("- Tags: #chatgpt #Context-Vault");
     expect(markdown).toContain('Source: archive=archive-1 turn=turn-1 chars=0-15 quote="Use Side Panel"');
+  });
+
+  it("exports stable card anchors while redacting protected card identifiers", () => {
+    const markdown = formatMemoryCardsAsMarkdown(
+      [
+        card({
+          id: "card-alice@example.com-sk-abcdefghijklmnopqrstuvwxyz123456",
+          status: "accepted",
+          acceptedAt: "2026-06-08T00:01:00.000Z"
+        })
+      ],
+      {
+        exportedAt: "2026-06-08T00:00:00.000Z"
+      }
+    );
+
+    expect(markdown).toContain("- Card id: [REDACTED_EMAIL]-[REDACTED_OPENAI_KEY]");
+    expect(markdown).toContain("- Accepted: 2026-06-08T00:01:00.000Z");
+    expect(markdown).not.toContain("alice@example.com");
+    expect(markdown).not.toContain("sk-abcdefghijklmnopqrstuvwxyz123456");
   });
 
   it("omits stale todo metadata from non-todo Markdown exports", () => {
