@@ -157,6 +157,40 @@ describe("markdown formatting", () => {
     expect(formatMemoryCardsAsMarkdown([])).toContain("No memory cards matched this export");
   });
 
+  it("escapes HTML in Markdown exports without changing prompt context", () => {
+    const htmlCard = card({
+      type: "todo",
+      title: "<script>alert(1)</script>",
+      body: "Use <b>bold</b> & keep source text readable.",
+      owner: "owner <admin>",
+      tags: ["<tag>", "R&D"],
+      sourceAnchors: [
+        {
+          id: "anchor-html",
+          archiveId: "archive-<one>",
+          turnId: "turn-&-two",
+          quote: "Use <b>bold</b> & source"
+        }
+      ]
+    });
+
+    const prompt = formatMemoryCardsForPrompt([htmlCard]);
+    const markdown = formatMemoryCardsAsMarkdown([htmlCard], {
+      exportedAt: "2026-06-08T00:00:00.000Z"
+    });
+
+    expect(prompt).toContain("<script>alert(1)</script>");
+    expect(prompt).toContain("Use <b>bold</b> & keep source text readable.");
+    expect(prompt).toContain('quote="Use <b>bold</b> & source"');
+    expect(markdown).toContain("### &lt;script&gt;alert(1)&lt;/script&gt;");
+    expect(markdown).toContain("Use &lt;b&gt;bold&lt;/b&gt; &amp; keep source text readable.");
+    expect(markdown).toContain("- Owner: owner &lt;admin&gt;");
+    expect(markdown).toContain("- Tags: #tag #R-D");
+    expect(markdown).toContain('quote="Use &lt;b&gt;bold&lt;/b&gt; &amp; source"');
+    expect(markdown).not.toContain("<script>");
+    expect(markdown).not.toContain("<b>bold</b>");
+  });
+
   it("redacts sensitive values in prompt and Markdown exports when requested", () => {
     const sensitiveCard = card({
       title: "Credential for alice@example.com",

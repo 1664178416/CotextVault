@@ -19,6 +19,12 @@ export interface PromptContextBuildResult {
   maxLength?: number;
 }
 
+interface SourceAnchorFormatOptions {
+  redactSensitive?: boolean;
+  redactionSensitivity?: Sensitivity;
+  escapeHtml?: boolean;
+}
+
 const TYPE_LABELS: Record<MemoryCardType, string> = {
   project_fact: "项目事实",
   decision: "决策记录",
@@ -108,47 +114,53 @@ export function formatMemoryCardsAsMarkdown(
   }
 
   for (const [type, typeCards] of groupCardsByType(cards.map(getSafeMemoryCardForRead))) {
-    lines.push(`## ${getMemoryTypeLabel(type)}`, "");
+    lines.push(`## ${escapeMarkdownHtml(getMemoryTypeLabel(type))}`, "");
 
     for (const rawCard of typeCards) {
       const card = normalizeMemoryCardForType(rawCard);
       const effectiveSensitivity = getEffectiveMemorySensitivity(card);
 
-      lines.push(`### ${formatPossiblyRedacted(card.title, options, effectiveSensitivity)}`, "");
-      lines.push(formatPossiblyRedacted(card.body, options, effectiveSensitivity).trim(), "");
-      lines.push(`- Type: ${getMemoryTypeLabel(card.type)}`);
-      lines.push(`- Card id: ${formatMemoryCardIdentifier(card.id)}`);
-      lines.push(`- Status: ${card.status}`);
-      lines.push(`- Scope: ${card.scope}`);
-      lines.push(`- Sensitivity: ${effectiveSensitivity}`);
+      lines.push(`### ${formatMarkdownText(card.title, options, effectiveSensitivity)}`, "");
+      lines.push(formatMarkdownText(card.body, options, effectiveSensitivity).trim(), "");
+      lines.push(`- Type: ${escapeMarkdownHtml(getMemoryTypeLabel(card.type))}`);
+      lines.push(`- Card id: ${escapeMarkdownHtml(formatMemoryCardIdentifier(card.id))}`);
+      lines.push(`- Status: ${escapeMarkdownHtml(card.status)}`);
+      lines.push(`- Scope: ${escapeMarkdownHtml(card.scope)}`);
+      lines.push(`- Sensitivity: ${escapeMarkdownHtml(effectiveSensitivity)}`);
       if (card.createdAt) {
-        lines.push(`- Created: ${card.createdAt}`);
+        lines.push(`- Created: ${escapeMarkdownHtml(card.createdAt)}`);
       }
       if (card.updatedAt) {
-        lines.push(`- Updated: ${card.updatedAt}`);
+        lines.push(`- Updated: ${escapeMarkdownHtml(card.updatedAt)}`);
       }
       if (card.acceptedAt) {
-        lines.push(`- Accepted: ${card.acceptedAt}`);
+        lines.push(`- Accepted: ${escapeMarkdownHtml(card.acceptedAt)}`);
       }
 
       if (card.owner) {
-        lines.push(`- Owner: ${formatPossiblyRedacted(card.owner, options, effectiveSensitivity)}`);
+        lines.push(`- Owner: ${formatMarkdownText(card.owner, options, effectiveSensitivity)}`);
       }
 
       if (card.dueAt) {
-        lines.push(`- Due: ${card.dueAt}`);
+        lines.push(`- Due: ${escapeMarkdownHtml(card.dueAt)}`);
       }
 
       if (card.tags.length > 0) {
         lines.push(
           `- Tags: ${card.tags
-            .map((tag) => `#${sanitizeTag(formatPossiblyRedacted(tag, options, effectiveSensitivity))}`)
+            .map((tag) => `#${escapeMarkdownHtml(sanitizeTag(formatPossiblyRedacted(tag, options, effectiveSensitivity)))}`)
             .join(" ")}`
         );
       }
 
       for (const source of getSafeSourceAnchors(card)) {
-        lines.push(`- Source: ${formatSourceAnchor(source, { ...options, redactionSensitivity: effectiveSensitivity })}`);
+        lines.push(
+          `- Source: ${formatSourceAnchor(source, {
+            ...options,
+            redactionSensitivity: effectiveSensitivity,
+            escapeHtml: true
+          })}`
+        );
       }
 
       lines.push("");
@@ -186,6 +198,18 @@ function formatPossiblyRedacted(
   }
 
   return sensitivity && sensitivity !== "normal" ? redactProtectedText(text, sensitivity) : redactSensitiveText(text);
+}
+
+function formatMarkdownText(
+  text: string,
+  options: { redactSensitive?: boolean },
+  sensitivity?: Sensitivity
+): string {
+  return escapeMarkdownHtml(formatPossiblyRedacted(text, options, sensitivity));
+}
+
+function escapeMarkdownHtml(text: string): string {
+  return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
 function formatPromptCardLines(card: MemoryCard, options: PromptContextFormatOptions): string[] {
@@ -344,11 +368,11 @@ function formatPromptMetadata(
 
 export function formatSourceAnchor(
   anchor: SourceAnchor,
-  options: { redactSensitive?: boolean; redactionSensitivity?: Sensitivity } = {}
+  options: SourceAnchorFormatOptions = {}
 ): string {
   const parts = [
-    `archive=${formatSourceAnchorIdentifier(anchor.archiveId, options)}`,
-    `turn=${formatSourceAnchorIdentifier(anchor.turnId, options)}`
+    `archive=${formatSourceAnchorOutput(formatSourceAnchorIdentifier(anchor.archiveId, options), options)}`,
+    `turn=${formatSourceAnchorOutput(formatSourceAnchorIdentifier(anchor.turnId, options), options)}`
   ];
 
   if (typeof anchor.charStart === "number" && typeof anchor.charEnd === "number") {
@@ -357,7 +381,7 @@ export function formatSourceAnchor(
 
   if (anchor.quote) {
     const quote = formatPossiblyRedacted(anchor.quote, options, options.redactionSensitivity);
-    parts.push(`quote="${truncateText(quote, 120).replaceAll('"', '\\"')}"`);
+    parts.push(`quote="${formatSourceAnchorOutput(truncateText(quote, 120), options).replaceAll('"', '\\"')}"`);
   }
 
   return parts.join(" ");
@@ -365,9 +389,13 @@ export function formatSourceAnchor(
 
 function formatSourceAnchorIdentifier(
   identifier: string,
-  _options: { redactSensitive?: boolean; redactionSensitivity?: Sensitivity }
+  _options: SourceAnchorFormatOptions
 ): string {
   return redactSensitiveText(identifier);
+}
+
+function formatSourceAnchorOutput(text: string, options: SourceAnchorFormatOptions): string {
+  return options.escapeHtml ? escapeMarkdownHtml(text) : text;
 }
 
 function formatMemoryCardIdentifier(identifier: string): string {
