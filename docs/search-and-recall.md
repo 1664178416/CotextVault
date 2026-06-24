@@ -89,6 +89,28 @@ User-facing filters:
 - confirmed only
 - pinned
 
+## Browser MVP Query Syntax
+
+The browser MVP supports lightweight field queries inside the recall search box. The side panel recall view searches accepted memories; these filters are applied before keyword scoring, so they narrow the candidate set while the remaining plain terms still rank title, body, tag, type, and metadata matches.
+
+Supported fields:
+
+- `type:decision`, `type:todo`, `type:method`
+- `scope:project`, `scope:conversation`, `scope:global`
+- `tag:recall` or `tags:recall`
+- `owner:wyh` for todo cards
+- `due:2026-06` for todo cards
+
+Quoted values are supported when a field value contains spaces:
+
+```text
+owner:"Context Vault" tag:"follow up" importer
+```
+
+The field matcher is intentionally forgiving for common recall input. For tag, owner, and due filters, punctuation and spacing differences are compacted, so `tag:follow-up` can match `follow up`, `owner:context_vault` can match `Context Vault team`, and `due:20260609` can match an ISO due date such as `2026-06-09T00:00:00.000Z`.
+
+The side panel type and scope dropdowns still work as explicit UI filters. Field queries are useful when the user wants to paste a compact query, combine metadata constraints with keywords, or copy search terms between tools.
+
 ## Return Formats
 
 ### Compact Context

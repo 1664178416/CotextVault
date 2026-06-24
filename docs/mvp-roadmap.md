@@ -198,7 +198,7 @@ Acceptance:
 - Vault workflow has test coverage for exact repeat capture deduplication by archive content hash.
 - Memory card updates are service-validated so edited cards keep valid source anchors, matching source text, and an existing local card ID before storage.
 - Memory card deletes are service-validated so missing IDs return errors instead of silent success.
-- Search has test coverage for status filtering, memory type/scope filtering, metadata matches, sensitive-result discoverability, and match snippets.
+- Search has test coverage for status filtering, memory type/scope filtering, structured field queries, metadata matches, sensitive-result discoverability, and match snippets.
 - Heuristic extraction has test coverage for conservative fallback behavior so ordinary long chat text does not become a project fact without reusable-memory signals.
 - Markdown export has test coverage for source-grounded memory card formatting, accepted/all export scopes, and redacted sensitive output.
 - Prompt copy formatting includes scope/tags/owner/due metadata and source anchors, supports redacted output, and has test coverage.

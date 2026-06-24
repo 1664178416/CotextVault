@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getMemoryRecallEmptyState, getSearchQueryLimitState, hasActiveMemoryRecallFilter } from "../search-state";
+import {
+  getClearedMemoryRecallFilters,
+  getMemoryRecallEmptyState,
+  getSearchQueryLimitState,
+  hasActiveMemoryRecallFilter
+} from "../search-state";
 
 describe("side panel search state", () => {
   it("detects active recall filters", () => {
@@ -7,6 +12,17 @@ describe("side panel search state", () => {
     expect(hasActiveMemoryRecallFilter({ query: " side panel ", memoryTypeFilter: "all", memoryScopeFilter: "all" })).toBe(true);
     expect(hasActiveMemoryRecallFilter({ query: "", memoryTypeFilter: "decision", memoryScopeFilter: "all" })).toBe(true);
     expect(hasActiveMemoryRecallFilter({ query: "", memoryTypeFilter: "all", memoryScopeFilter: "project" })).toBe(true);
+  });
+
+  it("returns a reusable cleared recall filter state", () => {
+    const clearedFilters = getClearedMemoryRecallFilters();
+
+    expect(clearedFilters).toEqual({
+      query: "",
+      memoryTypeFilter: "all",
+      memoryScopeFilter: "all"
+    });
+    expect(hasActiveMemoryRecallFilter(clearedFilters)).toBe(false);
   });
 
   it("does not return an empty state when memories are visible", () => {
@@ -46,6 +62,34 @@ describe("side panel search state", () => {
     ).toEqual({
       label: "No memories match the current search.",
       detail: "Active filters: search text, type=decision, scope=project. Try clearing the search or filters."
+    });
+  });
+
+  it("reports field-query filters in empty search feedback", () => {
+    expect(
+      getMemoryRecallEmptyState({
+        query: "capture,(tag:recall) owner:wyh",
+        memoryTypeFilter: "all",
+        memoryScopeFilter: "all",
+        visibleCount: 0,
+        acceptedCount: 3
+      })
+    ).toEqual({
+      label: "No memories match the current search.",
+      detail: "Active filters: search text, field query. Try clearing the search or filters."
+    });
+
+    expect(
+      getMemoryRecallEmptyState({
+        query: "tag:recall owner:wyh",
+        memoryTypeFilter: "all",
+        memoryScopeFilter: "all",
+        visibleCount: 0,
+        acceptedCount: 3
+      })
+    ).toEqual({
+      label: "No memories match the current search.",
+      detail: "Active filters: field query. Try clearing the search or filters."
     });
   });
 

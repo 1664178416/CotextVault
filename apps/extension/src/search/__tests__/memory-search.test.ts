@@ -150,6 +150,201 @@ describe("memory search", () => {
     expect(results[0]?.matchedFields).toContain("metadata");
   });
 
+  it("treats field queries as structured filters instead of loose keywords", () => {
+    const results = rankMemoryCards(
+      [
+        card({
+          id: "target",
+          type: "todo",
+          scope: "project",
+          owner: "wyh",
+          dueAt: "2026-06-09T00:00:00.000Z",
+          title: "Use Side Panel",
+          body: "Capture current conversation before extracting cards.",
+          tags: ["chatgpt", "recall"]
+        }),
+        card({
+          id: "wrong-tag",
+          type: "todo",
+          scope: "project",
+          owner: "wyh",
+          dueAt: "2026-06-09T00:00:00.000Z",
+          title: "Use Side Panel",
+          body: "Capture current conversation before extracting cards.",
+          tags: ["gemini"]
+        }),
+        card({
+          id: "wrong-owner",
+          type: "todo",
+          scope: "project",
+          owner: "alice",
+          dueAt: "2026-06-09T00:00:00.000Z",
+          title: "Use Side Panel",
+          body: "Capture current conversation before extracting cards.",
+          tags: ["chatgpt", "recall"]
+        }),
+        card({
+          id: "wrong-type",
+          type: "decision",
+          scope: "project",
+          owner: "wyh",
+          dueAt: "2026-06-09T00:00:00.000Z",
+          title: "Use Side Panel",
+          body: "Capture current conversation before extracting cards.",
+          tags: ["chatgpt", "recall"]
+        })
+      ],
+      "type:todo scope:project tag:recall owner:wyh due:2026-06 capture",
+      { status: "accepted" }
+    );
+
+    expect(results.map((result) => result.card.id)).toEqual(["target"]);
+    expect(results[0]?.matchedFields).toEqual(expect.arrayContaining(["body"]));
+  });
+
+  it("supports quoted field query values with spaces", () => {
+    const results = rankMemoryCards(
+      [
+        card({
+          id: "target",
+          type: "todo",
+          owner: "Context Vault team",
+          title: "Review importer",
+          body: "Handle official exports.",
+          tags: ["follow up"]
+        }),
+        card({
+          id: "other",
+          type: "todo",
+          owner: "Context team",
+          title: "Review importer",
+          body: "Handle official exports.",
+          tags: ["follow"]
+        })
+      ],
+      'owner:"context vault" tag:"follow up" official',
+      { status: "accepted" }
+    );
+
+    expect(results.map((result) => result.card.id)).toEqual(["target"]);
+  });
+
+  it("matches field filters across common spacing and punctuation differences", () => {
+    const results = rankMemoryCards(
+      [
+        card({
+          id: "target",
+          type: "todo",
+          owner: "Context Vault team",
+          dueAt: "2026-06-09T00:00:00.000Z",
+          title: "Review recall filters",
+          body: "Keep structured search forgiving.",
+          tags: ["follow up"]
+        }),
+        card({
+          id: "other",
+          type: "todo",
+          owner: "Context team",
+          dueAt: "2026-06-10T00:00:00.000Z",
+          title: "Review recall filters",
+          body: "Keep structured search forgiving.",
+          tags: ["follow"]
+        })
+      ],
+      "tag:follow-up owner:context_vault due:20260609 search",
+      { status: "accepted" }
+    );
+
+    expect(results.map((result) => result.card.id)).toEqual(["target"]);
+  });
+
+  it("parses field filters after common punctuation boundaries", () => {
+    const results = rankMemoryCards(
+      [
+        card({
+          id: "target",
+          type: "todo",
+          scope: "project",
+          owner: "wyh",
+          title: "Recall punctuation query",
+          body: "Capture search syntax examples.",
+          tags: ["recall"]
+        }),
+        card({
+          id: "wrong-owner",
+          type: "todo",
+          scope: "project",
+          owner: "alice",
+          title: "Recall punctuation query",
+          body: "Capture search syntax examples.",
+          tags: ["recall"]
+        }),
+        card({
+          id: "wrong-scope",
+          type: "todo",
+          scope: "global",
+          owner: "wyh",
+          title: "Recall punctuation query",
+          body: "Capture search syntax examples.",
+          tags: ["recall"]
+        })
+      ],
+      "capture,(tag:recall)，owner:wyh;scope:project",
+      { status: "accepted" }
+    );
+
+    expect(results.map((result) => result.card.id)).toEqual(["target"]);
+  });
+
+  it("returns recall-ordered results when only field filters are present", () => {
+    const results = rankMemoryCards(
+      [
+        card({
+          id: "older",
+          type: "decision",
+          scope: "project",
+          tags: ["recall"],
+          acceptedAt: "2026-06-08T00:00:00.000Z",
+          updatedAt: "2026-06-08T00:00:00.000Z"
+        }),
+        card({
+          id: "newer",
+          type: "decision",
+          scope: "project",
+          tags: ["recall"],
+          acceptedAt: "2026-06-08T01:00:00.000Z",
+          updatedAt: "2026-06-08T01:00:00.000Z"
+        }),
+        card({
+          id: "other-scope",
+          type: "decision",
+          scope: "global",
+          tags: ["recall"],
+          acceptedAt: "2026-06-08T02:00:00.000Z",
+          updatedAt: "2026-06-08T02:00:00.000Z"
+        })
+      ],
+      "type:decision scope:project tag:recall",
+      { status: "accepted" }
+    );
+
+    expect(results.map((result) => result.card.id)).toEqual(["newer", "older"]);
+    expect(results.every((result) => result.snippets.length === 0)).toBe(true);
+  });
+
+  it("does not let status field queries expand the caller-provided status scope", () => {
+    const results = rankMemoryCards(
+      [
+        card({ id: "accepted", status: "accepted", title: "Search scope" }),
+        card({ id: "proposed", status: "proposed", title: "Search scope" })
+      ],
+      "status:proposed",
+      { status: "accepted" }
+    );
+
+    expect(results).toEqual([]);
+  });
+
   it("normalizes full-width recall punctuation between query terms", () => {
     const results = rankMemoryCards(
       [

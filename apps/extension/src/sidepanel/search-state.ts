@@ -1,4 +1,10 @@
-import { MAX_SEARCH_QUERY_LENGTH, type MemoryCardType, type MemoryScope } from "@contextvault/shared";
+import {
+  MAX_SEARCH_QUERY_LENGTH,
+  parseRecallSearchQuery,
+  parseRecallSearchTerms,
+  type MemoryCardType,
+  type MemoryScope
+} from "@contextvault/shared";
 
 export type MemoryTypeFilter = MemoryCardType | "all";
 export type MemoryScopeFilter = MemoryScope | "all";
@@ -23,10 +29,24 @@ export interface SearchQueryLimitState {
   maxLength: number;
 }
 
+export interface MemoryRecallFilterState {
+  query: string;
+  memoryTypeFilter: MemoryTypeFilter;
+  memoryScopeFilter: MemoryScopeFilter;
+}
+
 export function hasActiveMemoryRecallFilter(
   input: Pick<MemoryRecallEmptyStateInput, "query" | "memoryTypeFilter" | "memoryScopeFilter">
 ): boolean {
   return input.query.trim().length > 0 || input.memoryTypeFilter !== "all" || input.memoryScopeFilter !== "all";
+}
+
+export function getClearedMemoryRecallFilters(): MemoryRecallFilterState {
+  return {
+    query: "",
+    memoryTypeFilter: "all",
+    memoryScopeFilter: "all"
+  };
 }
 
 export function getMemoryRecallEmptyState(input: MemoryRecallEmptyStateInput): MemoryRecallEmptyState | undefined {
@@ -90,8 +110,19 @@ export function getSearchQueryLimitState(
 function formatActiveFilters(input: MemoryRecallEmptyStateInput): string[] {
   const filters: string[] = [];
 
-  if (input.query.trim().length > 0) {
-    filters.push("search text");
+  const query = input.query.trim();
+
+  if (query.length > 0) {
+    const parsedQuery = parseRecallSearchQuery(query);
+    const terms = parseRecallSearchTerms(parsedQuery.text);
+
+    if (terms.length > 0) {
+      filters.push("search text");
+    }
+
+    if (parsedQuery.fieldQueries.length > 0) {
+      filters.push("field query");
+    }
   }
 
   if (input.memoryTypeFilter !== "all") {

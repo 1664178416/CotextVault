@@ -95,6 +95,7 @@ import {
   type ReviewStatus
 } from "./review-state";
 import {
+  getClearedMemoryRecallFilters,
   getMemoryRecallEmptyState,
   getSearchQueryLimitState,
   hasActiveMemoryRecallFilter,
@@ -890,6 +891,18 @@ function MemoryView({
     visibleCount,
     acceptedCount
   });
+  const hasActiveRecallFilter = hasActiveMemoryRecallFilter({
+    query,
+    memoryTypeFilter,
+    memoryScopeFilter
+  });
+  const clearRecallFilters = () => {
+    const clearedFilters = getClearedMemoryRecallFilters();
+
+    onQueryChange(clearedFilters.query);
+    onMemoryTypeFilterChange(clearedFilters.memoryTypeFilter);
+    onMemoryScopeFilterChange(clearedFilters.memoryScopeFilter);
+  };
 
   return (
     <section className="view-stack">
@@ -901,7 +914,9 @@ function MemoryView({
             onChange={(event) => onQueryChange(event.target.value)}
             maxLength={MAX_SEARCH_QUERY_LENGTH}
             aria-describedby={queryLimitState ? "memory-search-limit" : undefined}
-            placeholder="搜索记忆"
+            aria-label="搜索记忆，支持 tag:recall owner:wyh due:2026-06 等字段查询"
+            title="支持字段查询：type:todo scope:project tag:recall owner:wyh due:2026-06"
+            placeholder="搜索记忆，例如 tag:recall owner:wyh"
           />
         </div>
         {queryLimitState ? (
@@ -937,6 +952,16 @@ function MemoryView({
               ))}
             </select>
           </div>
+          <button
+            className="icon-button mini"
+            type="button"
+            title="清除搜索和筛选"
+            aria-label="清除搜索和筛选"
+            onClick={clearRecallFilters}
+            disabled={!hasActiveRecallFilter}
+          >
+            <X size={14} aria-hidden="true" />
+          </button>
         </div>
       </div>
 

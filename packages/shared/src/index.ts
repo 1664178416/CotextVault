@@ -5,6 +5,7 @@ export * from "./messages";
 export * from "./network-capture";
 export * from "./privacy";
 export * from "./provider";
+export * from "./search-query";
 export * from "./tags";
 export * from "./text";
 export * from "./types";

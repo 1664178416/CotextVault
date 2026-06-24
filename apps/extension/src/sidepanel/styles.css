@@ -529,6 +529,7 @@ button:disabled {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(92px, 0.85fr);
   gap: 6px;
+  flex: 1;
   width: 100%;
   min-width: 0;
 }

@@ -5,18 +5,21 @@ import {
   getSafeMemoryCardForRead,
   normalizeMemoryCardForType,
   normalizeText,
+  normalizeSearchFieldValue,
+  parseRecallSearchQuery,
+  parseRecallSearchTerms,
   redactProtectedText,
   sortMemoryCardsForRecall,
   type MemoryCard,
   type MemoryCardStatus,
   type MemoryCardType,
   type MemoryScope,
+  type SearchFieldQuery,
   type SearchSnippet,
   type SearchResult,
   type Sensitivity
 } from "@contextvault/shared";
 
-const QUERY_FIELD_TERMS = new Set(["type", "scope", "tag", "tags", "owner", "due", "status"]);
 const MAX_MATCHED_TERMS_PER_SNIPPET = 4;
 const MAX_MATCHED_TERM_LENGTH = 64;
 
@@ -48,13 +51,15 @@ export function rankMemoryCards(
     return recallResults(filteredCards, limit);
   }
 
-  const terms = parseSearchTerms(normalizedQuery);
+  const parsedQuery = parseRecallSearchQuery(normalizedQuery);
+  const terms = parseRecallSearchTerms(parsedQuery.text);
+  const queryFilteredCards = filterCardsByFieldQueries(filteredCards, parsedQuery.fieldQueries);
 
   if (terms.length === 0) {
-    return recallResults(filteredCards, limit);
+    return recallResults(queryFilteredCards, limit);
   }
 
-  return filteredCards
+  return queryFilteredCards
     .map((card) => scoreCard(card, terms))
     .filter((result) => result.score > 0)
     .sort((a, b) => b.score - a.score || compareMemoryCardsForRecall(a.card, b.card))
@@ -146,18 +151,47 @@ function scoreCard(card: MemoryCard, terms: string[]): SearchResult {
   };
 }
 
-function parseSearchTerms(query: string): string[] {
-  return [
-    ...new Set(
-      query
-        .replace(/[#\uFF03]/g, " ")
-        .replace(/[:\uFF1A]/g, " ")
-        .replace(/[,\uFF0C;\uFF1B|()[\]{}"'`\u3001\u3002\uFF01\uFF1F!?]+/g, " ")
-        .split(/\s+/)
-        .map((term) => term.trim())
-        .filter((term) => Boolean(term) && !QUERY_FIELD_TERMS.has(term))
-    )
-  ];
+function normalizeFieldMatchKey(value: string): string {
+  return normalizeSearchFieldValue(value)
+    .replace(/[#\uFF03]+/g, "")
+    .replace(/[_\-\s/\\.,;:|()[\]{}"'`\u3001\u3002\uFF0C\uFF1B\uFF1A\uFF01\uFF1F!?]+/g, "");
+}
+
+function filterCardsByFieldQueries(cards: MemoryCard[], filters: SearchFieldQuery[]): MemoryCard[] {
+  if (filters.length === 0) {
+    return cards;
+  }
+
+  return cards.filter((card) => filters.every((filter) => matchesFieldQuery(card, filter)));
+}
+
+function matchesFieldQuery(card: MemoryCard, filter: SearchFieldQuery): boolean {
+  switch (filter.field) {
+    case "type":
+      return card.type === filter.value;
+    case "scope":
+      return card.scope === filter.value;
+    case "status":
+      return card.status === filter.value;
+    case "tag":
+    case "tags":
+      return card.tags.some((tag) => fieldValueMatches(tag, filter.value));
+    case "owner":
+      return Boolean(card.owner && fieldValueMatches(card.owner, filter.value));
+    case "due":
+      return Boolean(card.dueAt && fieldValueMatches(card.dueAt, filter.value));
+  }
+}
+
+function fieldValueMatches(value: string, filterValue: string): boolean {
+  const normalizedValue = normalizeSearchFieldValue(value);
+  const compactValue = normalizeFieldMatchKey(value);
+  const compactFilterValue = normalizeFieldMatchKey(filterValue);
+
+  return (
+    normalizedValue.includes(filterValue) ||
+    (compactFilterValue.length > 0 && compactValue.includes(compactFilterValue))
+  );
 }
 
 function findMatchingTermVariant(text: string, term: string): string | undefined {
