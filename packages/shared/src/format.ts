@@ -156,11 +156,11 @@ export function formatMemoryCardsAsMarkdown(
       }
 
       if (card.tags.length > 0) {
-        lines.push(
-          `- Tags: ${card.tags
-            .map((tag) => `#${escapeMarkdownHtml(sanitizeTag(formatPossiblyRedacted(tag, options, effectiveSensitivity)))}`)
-            .join(" ")}`
-        );
+        const formattedTags = formatMarkdownTags(card.tags, options, effectiveSensitivity);
+
+        if (formattedTags) {
+          lines.push(`- Tags: ${formattedTags}`);
+        }
       }
 
       for (const source of getSafeSourceAnchors(card)) {
@@ -363,6 +363,18 @@ function groupCardsByType(cards: MemoryCard[]): Array<[MemoryCardType, MemoryCar
 
 function sanitizeTag(tag: string): string {
   return tag.replace(/[^\p{L}\p{N}_/-]+/gu, "-").replace(/^-+|-+$/g, "");
+}
+
+function formatMarkdownTags(
+  tags: string[],
+  options: { redactSensitive?: boolean },
+  effectiveSensitivity: Sensitivity
+): string {
+  return tags
+    .map((tag) => sanitizeTag(formatPossiblyRedacted(tag, options, effectiveSensitivity)))
+    .filter(Boolean)
+    .map((tag) => `#${escapeMarkdownHtml(tag)}`)
+    .join(" ");
 }
 
 function formatPromptMetadata(

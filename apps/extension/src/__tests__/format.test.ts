@@ -200,6 +200,23 @@ describe("markdown formatting", () => {
     expect(markdown).not.toContain("<b>Custom Export</b>");
   });
 
+  it("omits Markdown tags that become empty after sanitizing", () => {
+    const markdown = formatMemoryCardsAsMarkdown(
+      [
+        card({
+          tags: ["!!!", "<>", "valid tag"]
+        })
+      ],
+      {
+        exportedAt: "2026-06-08T00:00:00.000Z"
+      }
+    );
+
+    expect(markdown).toContain("- Tags: #valid-tag");
+    expect(markdown).not.toContain("- Tags: # ");
+    expect(markdown).not.toContain("##valid");
+  });
+
   it("redacts sensitive values in prompt and Markdown exports when requested", () => {
     const sensitiveCard = card({
       title: "Credential for alice@example.com",

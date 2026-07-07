@@ -99,6 +99,7 @@ import {
   getMemoryRecallEmptyState,
   getSearchQueryLimitState,
   hasActiveMemoryRecallFilter,
+  normalizeMemoryRecallQueryInput,
   type MemoryScopeFilter,
   type MemoryTypeFilter
 } from "./search-state";
@@ -911,12 +912,12 @@ function MemoryView({
           <Search size={16} aria-hidden="true" />
           <input
             value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
+            onChange={(event) => onQueryChange(normalizeMemoryRecallQueryInput(event.target.value))}
             maxLength={MAX_SEARCH_QUERY_LENGTH}
             aria-describedby={queryLimitState ? "memory-search-limit" : undefined}
-            aria-label="搜索记忆，支持 tag:recall owner:wyh due:2026-06 等字段查询"
-            title="支持字段查询：type:todo scope:project tag:recall owner:wyh due:2026-06"
-            placeholder="搜索记忆，例如 tag:recall owner:wyh"
+            aria-label="搜索记忆，支持 type:fact、类型:事实、scope:chat、范围:对话、tag:recall 等字段查询"
+            title="支持字段查询：type:decision 或 类型:决策，type:fact 或 类型:事实，scope:chat 或 范围:对话，tag:recall 或 标签:召回，status:saved 或 状态:已保存"
+            placeholder="搜索记忆，例如 类型:事实 标签:召回"
           />
         </div>
         {queryLimitState ? (

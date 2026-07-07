@@ -3,7 +3,8 @@ import {
   getClearedMemoryRecallFilters,
   getMemoryRecallEmptyState,
   getSearchQueryLimitState,
-  hasActiveMemoryRecallFilter
+  hasActiveMemoryRecallFilter,
+  normalizeMemoryRecallQueryInput
 } from "../search-state";
 
 describe("side panel search state", () => {
@@ -23,6 +24,12 @@ describe("side panel search state", () => {
       memoryScopeFilter: "all"
     });
     expect(hasActiveMemoryRecallFilter(clearedFilters)).toBe(false);
+  });
+
+  it("bounds recall search query input before it reaches search state", () => {
+    expect(normalizeMemoryRecallQueryInput("abcdef", 3)).toBe("abc");
+    expect(normalizeMemoryRecallQueryInput("abcdef", 0)).toBe("");
+    expect(normalizeMemoryRecallQueryInput("abcdef", -1)).toBe("");
   });
 
   it("does not return an empty state when memories are visible", () => {

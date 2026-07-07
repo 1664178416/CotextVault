@@ -97,6 +97,8 @@ Supported fields:
 
 - `type:decision`, `type:todo`, `type:method`
 - `scope:project`, `scope:conversation`, `scope:global`
+- aliases for common recall wording: `type:fact`, `type:task`, `type:workflow`, `type:citation`, `scope:chat`, `scope:workspace`, `status:saved`, `status:draft`
+- Chinese field names and values for the side panel: `类型:事实`, `类型:决策记录`, `类型:待办事项`, `范围:对话`, `范围:项目`, `状态:已保存`, `标签:召回`, `所有者:wyh`, `截止时间:2026-06`
 - `tag:recall` or `tags:recall`
 - `owner:wyh` for todo cards
 - `due:2026-06` for todo cards
@@ -105,9 +107,10 @@ Quoted values are supported when a field value contains spaces:
 
 ```text
 owner:"Context Vault" tag:"follow up" importer
+类型:事实 标签:“长期 偏好” 侧边栏
 ```
 
-The field matcher is intentionally forgiving for common recall input. For tag, owner, and due filters, punctuation and spacing differences are compacted, so `tag:follow-up` can match `follow up`, `owner:context_vault` can match `Context Vault team`, and `due:20260609` can match an ISO due date such as `2026-06-09T00:00:00.000Z`.
+The field matcher is intentionally forgiving for common recall input. Type, scope, and status filters accept common English and Chinese aliases before matching the stored enum values, so users can write `type:fact` or `类型:事实` for `project_fact`, `type:task` or `类型:任务` for `todo`, `scope:chat` or `范围:对话` for `conversation`, and `status:saved` or `状态:已保存` for `accepted`. Quoted values can use straight quotes, backticks, Chinese curly quotes, or book-title quotes. For tag, owner, and due filters, punctuation and spacing differences are compacted, so `tag:follow-up` can match `follow up`, `owner:context_vault` can match `Context Vault team`, and `due:20260609` can match an ISO due date such as `2026-06-09T00:00:00.000Z`.
 
 The side panel type and scope dropdowns still work as explicit UI filters. Field queries are useful when the user wants to paste a compact query, combine metadata constraints with keywords, or copy search terms between tools.
 

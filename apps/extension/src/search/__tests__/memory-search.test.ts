@@ -258,6 +258,135 @@ describe("memory search", () => {
     expect(results.map((result) => result.card.id)).toEqual(["target"]);
   });
 
+  it("supports user-friendly aliases for structured type, scope, and status filters", () => {
+    const results = rankMemoryCards(
+      [
+        card({
+          id: "target",
+          type: "project_fact",
+          scope: "conversation",
+          status: "accepted",
+          title: "ContextVault capture note",
+          body: "Store durable facts from AI conversations."
+        }),
+        card({
+          id: "wrong-type",
+          type: "decision",
+          scope: "conversation",
+          status: "accepted",
+          title: "ContextVault capture note",
+          body: "Store durable facts from AI conversations."
+        }),
+        card({
+          id: "wrong-scope",
+          type: "project_fact",
+          scope: "project",
+          status: "accepted",
+          title: "ContextVault capture note",
+          body: "Store durable facts from AI conversations."
+        })
+      ],
+      "type:fact scope:chat status:saved durable",
+      { status: "accepted" }
+    );
+
+    expect(results.map((result) => result.card.id)).toEqual(["target"]);
+  });
+
+  it("supports Chinese structured field queries in recall search", () => {
+    const results = rankMemoryCards(
+      [
+        card({
+          id: "target",
+          type: "project_fact",
+          scope: "conversation",
+          status: "accepted",
+          tags: ["召回"],
+          title: "对话捕获事实",
+          body: "当前对话需要沉淀为长期记忆。"
+        }),
+        card({
+          id: "wrong-scope",
+          type: "project_fact",
+          scope: "project",
+          status: "accepted",
+          tags: ["召回"],
+          title: "对话捕获事实",
+          body: "当前对话需要沉淀为长期记忆。"
+        }),
+        card({
+          id: "wrong-tag",
+          type: "project_fact",
+          scope: "conversation",
+          status: "accepted",
+          tags: ["导入"],
+          title: "对话捕获事实",
+          body: "当前对话需要沉淀为长期记忆。"
+        })
+      ],
+      "类型:事实 范围:对话 状态:已保存 标签:召回 长期记忆",
+      { status: "accepted" }
+    );
+
+    expect(results.map((result) => result.card.id)).toEqual(["target"]);
+  });
+
+  it("matches Chinese quoted field values that contain spaces", () => {
+    const results = rankMemoryCards(
+      [
+        card({
+          id: "target",
+          type: "todo",
+          owner: "Context Vault team",
+          tags: ["长期 偏好"],
+          title: "偏好沉淀待办",
+          body: "整理后续 followup 事项。"
+        }),
+        card({
+          id: "wrong-tag",
+          type: "todo",
+          owner: "Context Vault team",
+          tags: ["长期"],
+          title: "偏好沉淀待办",
+          body: "整理后续 followup 事项。"
+        })
+      ],
+      "标签：“长期 偏好” 负责人:‘Context Vault’ 类型:《任务》 followup",
+      { status: "accepted" }
+    );
+
+    expect(results.map((result) => result.card.id)).toEqual(["target"]);
+  });
+
+  it("matches Chinese side-panel vocabulary aliases for field queries", () => {
+    const results = rankMemoryCards(
+      [
+        card({
+          id: "target",
+          type: "decision",
+          scope: "project",
+          tags: ["方案"],
+          title: "插件方案决策",
+          body: "Chrome Side Panel 是主界面。"
+        }),
+        card({
+          id: "wrong-type",
+          type: "todo",
+          scope: "project",
+          owner: "wyh",
+          dueAt: "2026-06-09T00:00:00.000Z",
+          tags: ["方案"],
+          title: "插件方案决策",
+          body: "Chrome Side Panel 是主界面。"
+        })
+      ],
+      "类型:决策记录 范围:项目 标签名:方案 主界面",
+      { status: "accepted" }
+    );
+
+    expect(results.map((result) => result.card.id)).toEqual(["target"]);
+  });
+
   it("parses field filters after common punctuation boundaries", () => {
     const results = rankMemoryCards(
       [

@@ -49,6 +49,12 @@ export function getClearedMemoryRecallFilters(): MemoryRecallFilterState {
   };
 }
 
+export function normalizeMemoryRecallQueryInput(query: string, maxLength = MAX_SEARCH_QUERY_LENGTH): string {
+  const normalizedMaxLength = Math.max(0, Math.floor(maxLength));
+
+  return query.slice(0, normalizedMaxLength);
+}
+
 export function getMemoryRecallEmptyState(input: MemoryRecallEmptyStateInput): MemoryRecallEmptyState | undefined {
   if (input.visibleCount > 0) {
     return undefined;
