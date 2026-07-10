@@ -127,7 +127,8 @@ function formatActiveFilters(input: MemoryRecallEmptyStateInput): string[] {
     }
 
     if (parsedQuery.fieldQueries.length > 0) {
-      filters.push("field query");
+      const fieldNames = [...new Set(parsedQuery.fieldQueries.map((fieldQuery) => fieldQuery.field))];
+      filters.push(`field query: ${fieldNames.join("/")}`);
     }
   }
 

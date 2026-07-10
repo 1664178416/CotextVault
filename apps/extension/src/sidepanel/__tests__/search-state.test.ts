@@ -83,12 +83,12 @@ describe("side panel search state", () => {
       })
     ).toEqual({
       label: "No memories match the current search.",
-      detail: "Active filters: search text, field query. Try clearing the search or filters."
+      detail: "Active filters: search text, field query: tag/owner. Try clearing the search or filters."
     });
 
     expect(
       getMemoryRecallEmptyState({
-        query: "tag:recall owner:wyh",
+        query: "类型:事实 标签:召回",
         memoryTypeFilter: "all",
         memoryScopeFilter: "all",
         visibleCount: 0,
@@ -96,7 +96,7 @@ describe("side panel search state", () => {
       })
     ).toEqual({
       label: "No memories match the current search.",
-      detail: "Active filters: field query. Try clearing the search or filters."
+      detail: "Active filters: field query: type/tag. Try clearing the search or filters."
     });
   });
 
