@@ -229,6 +229,39 @@ describe("side panel export state", () => {
     expect(message).toContain("Archive warnings mark 1 secret and 1 sensitive archive(s).");
   });
 
+  it("omits zero-value sensitivity counts from export disclosures", () => {
+    const baseVault = vaultExport();
+    const [baseArchive] = baseVault.archives;
+    const message = formatVaultExportDisclosureMessage(
+      vaultExport({
+        archives: [
+          {
+            ...baseArchive!,
+            archive: {
+              ...baseArchive!.archive,
+              warnings: [
+                {
+                  code: "sensitive_content_detected",
+                  message: "Captured archive appears to contain sensitive content."
+                }
+              ]
+            },
+            turns: [
+              {
+                ...baseArchive!.turns[0]!,
+                text: "Contact alice@example.com before launch."
+              }
+            ]
+          }
+        ]
+      })
+    );
+
+    expect(message).toContain("Archive warnings mark 1 sensitive archive(s).");
+    expect(message).toContain("Source turns currently include 1 sensitive turn(s).");
+    expect(message).not.toContain("0 secret");
+  });
+
   it("includes source-turn sensitivity even when archive warnings are missing", () => {
     const baseVault = vaultExport();
     const [baseArchive] = baseVault.archives;

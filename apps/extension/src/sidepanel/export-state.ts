@@ -77,15 +77,11 @@ export function formatVaultExportDisclosureMessage(vault: VaultExport): string {
   }
 
   if (archiveWarningSummary.secret > 0 || archiveWarningSummary.sensitive > 0) {
-    parts.push(
-      `Archive warnings mark ${archiveWarningSummary.secret} secret and ${archiveWarningSummary.sensitive} sensitive archive(s).`
-    );
+    parts.push(`Archive warnings mark ${formatSensitivityCountSummary(archiveWarningSummary, "archive")}.`);
   }
 
   if (sourceTurnSummary.secret > 0 || sourceTurnSummary.sensitive > 0) {
-    parts.push(
-      `Source turns currently include ${sourceTurnSummary.secret} secret and ${sourceTurnSummary.sensitive} sensitive turn(s).`
-    );
+    parts.push(`Source turns currently include ${formatSensitivityCountSummary(sourceTurnSummary, "turn")}.`);
   }
 
   parts.push("Continue exporting?");
@@ -110,9 +106,7 @@ export function formatArchiveExportDisclosureMessage(archiveWithTurns: ArchiveWi
   }
 
   if (sourceTurnSummary.secret > 0 || sourceTurnSummary.sensitive > 0) {
-    parts.push(
-      `Source turns currently include ${sourceTurnSummary.secret} secret and ${sourceTurnSummary.sensitive} sensitive turn(s).`
-    );
+    parts.push(`Source turns currently include ${formatSensitivityCountSummary(sourceTurnSummary, "turn")}.`);
   }
 
   parts.push("Continue exporting?");
@@ -135,6 +129,26 @@ function formatLargeVaultExportWarning(
 
 function byteLengthUtf8(text: string): number {
   return new TextEncoder().encode(text).byteLength;
+}
+
+function formatSensitivityCountSummary(
+  summary: Pick<Record<Sensitivity, number>, "sensitive" | "secret">,
+  noun: string
+): string {
+  const parts = [
+    summary.secret > 0 ? `${summary.secret} secret` : "",
+    summary.sensitive > 0 ? `${summary.sensitive} sensitive` : ""
+  ].filter(Boolean);
+
+  if (parts.length === 0) {
+    return `0 ${noun}(s)`;
+  }
+
+  if (parts.length === 1) {
+    return `${parts[0]} ${noun}(s)`;
+  }
+
+  return `${parts[0]} and ${parts[1]} ${noun}(s)`;
 }
 
 function summarizeArchiveWarningSensitivity(archives: ArchiveWithTurns[]): Record<ArchiveWarningSensitivity, number> {
