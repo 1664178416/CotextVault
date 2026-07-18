@@ -132,7 +132,7 @@ describe("side panel export state", () => {
   it("formats full-vault export disclosure with exact content counts", () => {
     const message = formatVaultExportDisclosureMessage(vaultExport());
 
-    expect(message).toContain("Export full ContextVault JSON with 1 archive(s) and 1 memory card(s).");
+    expect(message).toContain("Export full ContextVault JSON with 1 archive and 1 memory card.");
     expect(message).toContain("Raw archives can contain complete captured conversation text.");
     expect(message).toContain("Continue exporting?");
     expect(message).not.toContain("Memory cards include");
@@ -143,7 +143,7 @@ describe("side panel export state", () => {
     const [archiveWithTurns] = vaultExport().archives;
     const message = formatArchiveExportDisclosureMessage(archiveWithTurns!);
 
-    expect(message).toContain("Export raw ContextVault archive JSON with 1 source turn(s).");
+    expect(message).toContain("Export raw ContextVault archive JSON with 1 source turn.");
     expect(message).toContain("Raw archives can contain complete captured conversation text.");
     expect(message).toContain("Continue exporting?");
     expect(message).not.toContain("Archive warnings mark");
@@ -177,9 +177,9 @@ describe("side panel export state", () => {
       ]
     });
 
-    expect(message).toContain("Archive has 1 capture warning(s).");
+    expect(message).toContain("Archive has 1 capture warning.");
     expect(message).toContain("Archive warnings mark this archive as secret.");
-    expect(message).toContain("Source turns currently include 1 secret and 1 sensitive turn(s).");
+    expect(message).toContain("Source turns currently include 1 secret turn and 1 sensitive turn.");
     expect(message).not.toContain("alice@example.com");
     expect(message).not.toContain("sk-abcdefghijklmnopqrstuvwxyz123456");
   });
@@ -224,9 +224,9 @@ describe("side panel export state", () => {
       })
     );
 
-    expect(message).toContain("2 archive(s) and 2 memory card(s)");
+    expect(message).toContain("2 archives and 2 memory cards");
     expect(message).toContain("Memory cards include 1 secret, 1 sensitive");
-    expect(message).toContain("Archive warnings mark 1 secret and 1 sensitive archive(s).");
+    expect(message).toContain("Archive warnings mark 1 secret archive and 1 sensitive archive.");
   });
 
   it("omits zero-value sensitivity counts from export disclosures", () => {
@@ -257,8 +257,8 @@ describe("side panel export state", () => {
       })
     );
 
-    expect(message).toContain("Archive warnings mark 1 sensitive archive(s).");
-    expect(message).toContain("Source turns currently include 1 sensitive turn(s).");
+    expect(message).toContain("Archive warnings mark 1 sensitive archive.");
+    expect(message).toContain("Source turns currently include 1 sensitive turn.");
     expect(message).not.toContain("0 secret");
   });
 
@@ -288,7 +288,7 @@ describe("side panel export state", () => {
       })
     );
 
-    expect(message).toContain("Source turns currently include 1 secret and 1 sensitive turn(s).");
+    expect(message).toContain("Source turns currently include 1 secret turn and 1 sensitive turn.");
     expect(message).not.toContain("alice@example.com");
     expect(message).not.toContain("sk-abcdefghijklmnopqrstuvwxyz123456");
   });
@@ -297,8 +297,8 @@ describe("side panel export state", () => {
     const prepared = prepareVaultExportDownload(vaultExport(), { largeExportBytes: 1 });
 
     expect(prepared.largeExportWarning).toContain("ContextVault export is large");
-    expect(prepared.largeExportWarning).toContain("1 archive(s)");
-    expect(prepared.largeExportWarning).toContain("1 memory card(s)");
+    expect(prepared.largeExportWarning).toContain("1 archive");
+    expect(prepared.largeExportWarning).toContain("1 memory card");
     expect(prepared.largeExportWarning).toContain("1 B");
   });
 });

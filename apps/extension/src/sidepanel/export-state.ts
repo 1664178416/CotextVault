@@ -68,7 +68,10 @@ export function formatVaultExportDisclosureMessage(vault: VaultExport): string {
   const archiveWarningSummary = summarizeArchiveWarningSensitivity(vault.archives);
   const sourceTurnSummary = summarizeSourceTurnSensitivity(vault.archives);
   const parts = [
-    `Export full ContextVault JSON with ${vault.archives.length} archive(s) and ${vault.memoryCards.length} memory card(s).`,
+    `Export full ContextVault JSON with ${formatCount(vault.archives.length, "archive")} and ${formatCount(
+      vault.memoryCards.length,
+      "memory card"
+    )}.`,
     "Raw archives can contain complete captured conversation text."
   ];
 
@@ -93,12 +96,12 @@ export function formatArchiveExportDisclosureMessage(archiveWithTurns: ArchiveWi
   const archiveWarningSensitivity = getArchiveWarningSensitivity(archiveWithTurns.archive.warnings);
   const sourceTurnSummary = summarizeSourceTurnSensitivity([archiveWithTurns]);
   const parts = [
-    `Export raw ContextVault archive JSON with ${archiveWithTurns.turns.length} source turn(s).`,
+    `Export raw ContextVault archive JSON with ${formatCount(archiveWithTurns.turns.length, "source turn")}.`,
     "Raw archives can contain complete captured conversation text."
   ];
 
   if (archiveWithTurns.archive.warnings.length > 0) {
-    parts.push(`Archive has ${archiveWithTurns.archive.warnings.length} capture warning(s).`);
+    parts.push(`Archive has ${formatCount(archiveWithTurns.archive.warnings.length, "capture warning")}.`);
   }
 
   if (archiveWarningSensitivity === "secret" || archiveWarningSensitivity === "sensitive") {
@@ -121,7 +124,10 @@ function formatLargeVaultExportWarning(
 ): string {
   return [
     `ContextVault export is large (${formatBytes(byteLength)}).`,
-    `It contains ${vault.archives.length} archive(s) and ${vault.memoryCards.length} memory card(s).`,
+    `It contains ${formatCount(vault.archives.length, "archive")} and ${formatCount(
+      vault.memoryCards.length,
+      "memory card"
+    )}.`,
     `Files above ${formatBytes(largeExportBytes)} may take longer to download, sync, or import later.`,
     "Continue?"
   ].join(" ");
@@ -136,19 +142,27 @@ function formatSensitivityCountSummary(
   noun: string
 ): string {
   const parts = [
-    summary.secret > 0 ? `${summary.secret} secret` : "",
-    summary.sensitive > 0 ? `${summary.sensitive} sensitive` : ""
+    summary.secret > 0 ? `${summary.secret} secret ${pluralize(noun, summary.secret)}` : "",
+    summary.sensitive > 0 ? `${summary.sensitive} sensitive ${pluralize(noun, summary.sensitive)}` : ""
   ].filter(Boolean);
 
   if (parts.length === 0) {
-    return `0 ${noun}(s)`;
+    return `0 ${pluralize(noun, 0)}`;
   }
 
   if (parts.length === 1) {
-    return `${parts[0]} ${noun}(s)`;
+    return parts[0]!;
   }
 
-  return `${parts[0]} and ${parts[1]} ${noun}(s)`;
+  return `${parts[0]} and ${parts[1]}`;
+}
+
+function formatCount(count: number, noun: string): string {
+  return `${count} ${pluralize(noun, count)}`;
+}
+
+function pluralize(noun: string, count: number): string {
+  return count === 1 ? noun : `${noun}s`;
 }
 
 function summarizeArchiveWarningSensitivity(archives: ArchiveWithTurns[]): Record<ArchiveWarningSensitivity, number> {
