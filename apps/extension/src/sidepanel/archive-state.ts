@@ -9,6 +9,7 @@ import {
   type Sensitivity,
   type SourceArchive
 } from "@contextvault/shared";
+import { formatCount } from "./count-state";
 
 type MemoryStatusCounts = Record<MemoryCardStatus, number>;
 
@@ -22,12 +23,12 @@ export function getArchiveReferencedCards(cards: MemoryCard[], archiveId: string
 
 export function formatArchiveDeleteResultMessage(result: DeleteArchiveResult): string {
   const parts = [
-    `Deleted 1 archive and ${result.deletedTurnCount} source turn(s).`,
-    `Deleted ${result.deletedMemoryCardCount} memory card(s).`
+    `Deleted 1 archive and ${formatCount(result.deletedTurnCount, "source turn")}.`,
+    `Deleted ${formatCount(result.deletedMemoryCardCount, "memory card")}.`
   ];
 
   if (result.updatedMemoryCardCount > 0) {
-    parts.push(`Updated ${result.updatedMemoryCardCount} multi-source memory card(s) by removing stale anchors.`);
+    parts.push(`Updated ${formatCount(result.updatedMemoryCardCount, "multi-source memory card")} by removing stale anchors.`);
   }
 
   return parts.join(" ");
@@ -56,16 +57,18 @@ export function formatArchiveDeleteConfirmation(archive: SourceArchive, referenc
       .map((status) => `${memoryStatusLabel(status)} ${counts[status]}`)
       .join(", ");
 
-    parts.push(`This affects ${safeReferencedCards.length} memory card(s): ${countSummary}.`);
+    parts.push(`This affects ${formatCount(safeReferencedCards.length, "memory card")}: ${countSummary}.`);
   }
 
   if (singleSourceCardCount > 0) {
-    parts.push(`${singleSourceCardCount} memory card(s) only reference this archive and will be deleted.`);
+    parts.push(
+      `${formatCount(singleSourceCardCount, "memory card")} ${singleSourceCardCount === 1 ? "references" : "reference"} only this archive and will be deleted.`
+    );
   }
 
   if (multiSourceCardCount > 0) {
     parts.push(
-      `${multiSourceCardCount} memory card(s) also reference other archives and will be kept with this archive's anchors removed.`
+      `${formatCount(multiSourceCardCount, "memory card")} also ${multiSourceCardCount === 1 ? "references" : "reference"} other archives and will be kept with this archive's anchors removed.`
     );
   }
 

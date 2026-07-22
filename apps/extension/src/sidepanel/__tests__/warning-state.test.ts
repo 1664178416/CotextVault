@@ -81,10 +81,26 @@ describe("side panel warning state", () => {
       "warnings_omitted"
     ]);
     expect(warnings[2]).toMatchObject({
-      message: "2 additional warning type(s) hidden.",
+      message: "2 additional warning types hidden.",
       count: 2,
       omittedCount: 2,
       severity: "low"
+    });
+  });
+
+  it("uses a singular omitted warning type label", () => {
+    const warnings = summarizeWarningsForDisplay(
+      [
+        { code: "secret_content_detected", message: "Captured archive appears to contain secrets." },
+        { code: "missing_user_turn", message: "Missing user turn." }
+      ],
+      { maxItems: 1 }
+    );
+
+    expect(warnings[1]).toMatchObject({
+      message: "1 additional warning type hidden.",
+      count: 1,
+      omittedCount: 1
     });
   });
 

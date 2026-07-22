@@ -74,10 +74,10 @@ describe("prompt copy state", () => {
       maxSourceAnchorsPerCard: 2
     });
 
-    expect(message).toContain("include 1 of 2 selected memory card(s)");
+    expect(message).toContain("include 1 of 2 selected memory cards");
     expect(message).toContain("Prompt budget: 500/500 characters");
-    expect(message).toContain("omit 1 memory card(s)");
-    expect(message).toContain("omit 1 extra source anchor(s)");
+    expect(message).toContain("omit 1 memory card");
+    expect(message).toContain("omit 1 extra source anchor");
     expect(message).toContain("Continue copying?");
     expect(message).not.toContain("Secret title should not appear");
     expect(message).not.toContain("Omitted private strategy");
@@ -100,7 +100,7 @@ describe("prompt copy state", () => {
 
     const message = formatPromptCopyResultMessage(context, { maxSourceAnchorsPerCard: 1 });
 
-    expect(message).toBe("Copied 1 memory card(s); omitted 1 card(s) to stay within the prompt budget; omitted 2 extra source anchor(s).");
+    expect(message).toBe("Copied 1 memory card; omitted 1 card to stay within the prompt budget; omitted 2 extra source anchors.");
     expect(message).not.toContain("Private omitted text");
   });
 
@@ -116,7 +116,7 @@ describe("prompt copy state", () => {
 
     const message = formatPromptCopyResultMessage(context, { maxSourceAnchorsPerCard: 2 });
 
-    expect(message).toBe("Copied 1 memory card(s); trimmed text to fit the prompt budget.");
+    expect(message).toBe("Copied 1 memory card; trimmed text to fit the prompt budget.");
     expect(message).not.toContain("Secret launch note");
   });
 

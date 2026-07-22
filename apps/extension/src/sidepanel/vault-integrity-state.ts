@@ -1,4 +1,5 @@
 import type { VaultIntegrityIssue, VaultIntegrityReport } from "@contextvault/shared";
+import { formatCount } from "./count-state";
 
 export type VaultIntegrityLevel = "ok" | "warning";
 
@@ -23,13 +24,13 @@ export function getVaultIntegrityLevel(report: VaultIntegrityReport): VaultInteg
 }
 
 export function formatVaultIntegritySummary(report: VaultIntegrityReport): string {
-  const checkedCounts = `${report.archiveCount} archive(s), ${report.sourceTurnCount} turn(s), ${report.memoryCardCount} card(s)`;
+  const checkedCounts = `${formatCount(report.archiveCount, "archive")}, ${formatCount(report.sourceTurnCount, "turn")}, ${formatCount(report.memoryCardCount, "card")}`;
 
   if (report.issueCount === 0) {
     return `Vault healthy. Checked ${checkedCounts}.`;
   }
 
-  return `Found ${report.issueCount} source-grounding issue(s) across ${checkedCounts}.`;
+  return `Found ${formatCount(report.issueCount, "source-grounding issue")} across ${checkedCounts}.`;
 }
 
 export function formatVaultIntegrityResultMessage(report: VaultIntegrityReport): string {
@@ -37,9 +38,9 @@ export function formatVaultIntegrityResultMessage(report: VaultIntegrityReport):
     return "Vault integrity check passed.";
   }
 
-  const suffix = report.omittedIssueCount > 0 ? ` ${report.omittedIssueCount} detail(s) omitted.` : "";
+  const suffix = report.omittedIssueCount > 0 ? ` ${formatCount(report.omittedIssueCount, "detail")} omitted.` : "";
 
-  return `Vault integrity check found ${report.issueCount} issue(s).${suffix}`;
+  return `Vault integrity check found ${formatCount(report.issueCount, "issue")}.${suffix}`;
 }
 
 export function formatVaultIntegrityIssue(issue: VaultIntegrityIssue): string {

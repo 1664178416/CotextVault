@@ -13,6 +13,7 @@ import {
   type SourceRole
 } from "@contextvault/shared";
 import { unzipSync, strFromU8 } from "fflate";
+import { formatCount } from "./count-state";
 
 type ChatGptTurnReadResult = {
   turn?: ConversationTurnCapture;
@@ -248,7 +249,7 @@ function boundChatGptCaptureTurns(captures: ConversationCapture[]): Conversation
         ...capture.warnings,
         {
           code: "chatgpt_turn_limit_reached",
-          message: `Imported the first ${MAX_SOURCE_TURNS_PER_ARCHIVE} ChatGPT export turn(s) from "${formatChatGptConversationLabel(capture)}" and skipped ${skippedTurnCount} additional turn(s).`
+          message: `Imported the first ${MAX_SOURCE_TURNS_PER_ARCHIVE} ChatGPT export turns from "${formatChatGptConversationLabel(capture)}" and skipped ${formatCount(skippedTurnCount, "additional turn")}.`
         }
       ]
     };
@@ -272,7 +273,7 @@ function withSkippedEmptyConversationWarning(
         ...firstCapture.warnings,
         {
           code: "chatgpt_empty_conversations_skipped",
-          message: `Skipped ${skippedEmptyCount} ChatGPT conversation(s) without importable user or assistant text.`
+          message: `Skipped ${formatCount(skippedEmptyCount, "ChatGPT conversation")} without importable user or assistant text.`
         }
       ]
     },
@@ -338,7 +339,7 @@ function convertChatGptConversation(value: unknown, index: number): Conversation
         ? [
             {
               code: "chatgpt_non_text_parts_skipped",
-              message: `Skipped ${skippedPartCount} non-text ChatGPT export part(s), such as images, files, or structured payloads.`
+              message: `Skipped ${formatCount(skippedPartCount, "non-text ChatGPT export part")}, such as images, files, or structured payloads.`
             }
           ]
         : []),
@@ -346,7 +347,7 @@ function convertChatGptConversation(value: unknown, index: number): Conversation
         ? [
             {
               code: "chatgpt_non_conversation_roles_skipped",
-              message: `Skipped ${skippedRoleTurnCount} ChatGPT export message(s) with system, tool, or unknown roles.`
+              message: `Skipped ${formatCount(skippedRoleTurnCount, "ChatGPT export message")} with system, tool, or unknown roles.`
             }
           ]
         : []),
@@ -354,7 +355,7 @@ function convertChatGptConversation(value: unknown, index: number): Conversation
         ? [
             {
               code: "chatgpt_turn_text_truncated",
-              message: `Truncated ${truncatedTextCount} ChatGPT export turn(s) to ${MAX_SOURCE_TURN_TEXT_LENGTH} characters before import.`
+              message: `Truncated ${formatCount(truncatedTextCount, "ChatGPT export turn")} to ${MAX_SOURCE_TURN_TEXT_LENGTH} characters before import.`
             }
           ]
         : [])

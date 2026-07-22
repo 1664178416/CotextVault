@@ -4,6 +4,7 @@ import {
   type CaptureWarning,
   type Sensitivity
 } from "@contextvault/shared";
+import { formatCount } from "./count-state";
 
 export interface DisplayWarning {
   key: string;
@@ -66,7 +67,7 @@ export function summarizeWarningsForDisplay(
     {
       key: "warnings-omitted",
       code: "warnings_omitted",
-      message: `${omittedWarnings.length} additional warning type(s) hidden.`,
+      message: `${formatCount(omittedWarnings.length, "additional warning type")} hidden.`,
       count: omittedWarnings.reduce((count, warning) => count + warning.count, 0),
       severity: "low",
       omittedCount: omittedWarnings.length

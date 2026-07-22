@@ -30,7 +30,7 @@ describe("side panel memory card state", () => {
 
     expect(message).toContain("Type:");
     expect(message).toContain("Status: accepted");
-    expect(message).toContain("Sources: 1 anchor(s) across 1 archive(s)");
+    expect(message).toContain("Sources: 1 anchor across 1 archive");
     expect(message).toContain("accepted long-term memory");
     expect(message).toContain("Raw source archives and source turns remain unless deleted separately.");
   });
@@ -46,7 +46,7 @@ describe("side panel memory card state", () => {
       })
     );
 
-    expect(message).toContain("Sources: 3 anchor(s) across 2 archive(s)");
+    expect(message).toContain("Sources: 3 anchors across 2 archives");
   });
 
   it("summarizes only valid source anchors when delete confirmations see malformed cards", () => {
@@ -61,7 +61,7 @@ describe("side panel memory card state", () => {
       } as unknown as MemoryCard
     );
 
-    expect(message).toContain("Sources: 1 anchor(s) across 1 archive(s)");
+    expect(message).toContain("Sources: 1 anchor across 1 archive");
   });
 
   it("formats delete confirmations for malformed local memory cards through safe fallbacks", () => {
@@ -78,7 +78,7 @@ describe("side panel memory card state", () => {
 
     expect(message).toContain("Title: Untitled memory");
     expect(message).toContain("Status: proposed");
-    expect(message).toContain("Sources: 0 anchor(s) across 0 archive(s)");
+    expect(message).toContain("Sources: 0 anchors across 0 archives");
   });
 
   it("redacts protected card titles in delete confirmations", () => {

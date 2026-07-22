@@ -1,5 +1,6 @@
 import type { ArchiveWithTurns, CaptureWarning, MemoryCard, Sensitivity, VaultExport } from "@contextvault/shared";
 import { classifySensitivity, formatSensitivitySummary, summarizeMemorySensitivity } from "@contextvault/shared";
+import { formatCount, pluralizeCount } from "./count-state";
 import { formatBytes } from "./storage-state";
 
 export type MarkdownExportScope = "accepted" | "proposed" | "all";
@@ -142,12 +143,12 @@ function formatSensitivityCountSummary(
   noun: string
 ): string {
   const parts = [
-    summary.secret > 0 ? `${summary.secret} secret ${pluralize(noun, summary.secret)}` : "",
-    summary.sensitive > 0 ? `${summary.sensitive} sensitive ${pluralize(noun, summary.sensitive)}` : ""
+    summary.secret > 0 ? `${summary.secret} secret ${pluralizeCount(summary.secret, noun)}` : "",
+    summary.sensitive > 0 ? `${summary.sensitive} sensitive ${pluralizeCount(summary.sensitive, noun)}` : ""
   ].filter(Boolean);
 
   if (parts.length === 0) {
-    return `0 ${pluralize(noun, 0)}`;
+    return `0 ${pluralizeCount(0, noun)}`;
   }
 
   if (parts.length === 1) {
@@ -155,14 +156,6 @@ function formatSensitivityCountSummary(
   }
 
   return `${parts[0]} and ${parts[1]}`;
-}
-
-function formatCount(count: number, noun: string): string {
-  return `${count} ${pluralize(noun, count)}`;
-}
-
-function pluralize(noun: string, count: number): string {
-  return count === 1 ? noun : `${noun}s`;
 }
 
 function summarizeArchiveWarningSensitivity(archives: ArchiveWithTurns[]): Record<ArchiveWarningSensitivity, number> {

@@ -152,7 +152,7 @@ describe("vault import state helpers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           code: "chatgpt_turn_text_truncated",
-          message: expect.stringContaining(`Truncated 1 ChatGPT export turn(s) to ${MAX_SOURCE_TURN_TEXT_LENGTH}`)
+          message: expect.stringContaining(`Truncated 1 ChatGPT export turn to ${MAX_SOURCE_TURN_TEXT_LENGTH}`)
         })
       ])
     );

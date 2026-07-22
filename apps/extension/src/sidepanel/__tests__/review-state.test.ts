@@ -190,7 +190,7 @@ describe("side panel review state", () => {
       "accepted"
     );
 
-    expect(message).toContain("Accept 4 proposed memory card(s)");
+    expect(message).toContain("Accept 4 proposed memory cards");
     expect(message).toContain("2 secret");
     expect(message).toContain("1 sensitive");
   });
@@ -202,7 +202,7 @@ describe("side panel review state", () => {
   it("asks before rejecting multiple candidates but not a single candidate", () => {
     expect(getReviewConfirmationMessage([card()], "rejected")).toBeUndefined();
     expect(getReviewConfirmationMessage([card({ id: "one" }), card({ id: "two" })], "rejected")).toBe(
-      "Reject 2 proposed memory card(s)?"
+      "Reject 2 proposed memory cards?"
     );
   });
 });

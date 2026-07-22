@@ -52,7 +52,7 @@ describe("side panel archive state", () => {
         updatedMemoryCardCount: 3
       })
     ).toBe(
-      "Deleted 1 archive and 2 source turn(s). Deleted 1 memory card(s). Updated 3 multi-source memory card(s) by removing stale anchors."
+      "Deleted 1 archive and 2 source turns. Deleted 1 memory card. Updated 3 multi-source memory cards by removing stale anchors."
     );
   });
 
@@ -64,7 +64,7 @@ describe("side panel archive state", () => {
         deletedMemoryCardCount: 2,
         updatedMemoryCardCount: 0
       })
-    ).toBe("Deleted 1 archive and 1 source turn(s). Deleted 2 memory card(s).");
+    ).toBe("Deleted 1 archive and 1 source turn. Deleted 2 memory cards.");
   });
 
   it("finds cards that reference an archive through any source anchor", () => {
@@ -142,8 +142,8 @@ describe("side panel archive state", () => {
       card({ id: "rejected", status: "rejected" })
     ]);
 
-    expect(message).toContain("This affects 3 memory card(s): accepted 1, proposed 1, rejected 1.");
-    expect(message).toContain("3 memory card(s) only reference this archive and will be deleted.");
+    expect(message).toContain("This affects 3 memory cards: accepted 1, proposed 1, rejected 1.");
+    expect(message).toContain("3 memory cards reference only this archive and will be deleted.");
     expect(message).toContain("Accepted long-term memories are affected.");
     expect(message).toContain("Archive: ContextVault design");
   });
@@ -161,9 +161,9 @@ describe("side panel archive state", () => {
       })
     ]);
 
-    expect(message).toContain("1 memory card(s) only reference this archive and will be deleted.");
+    expect(message).toContain("1 memory card references only this archive and will be deleted.");
     expect(message).toContain(
-      "1 memory card(s) also reference other archives and will be kept with this archive's anchors removed."
+      "1 memory card also references other archives and will be kept with this archive's anchors removed."
     );
   });
 
@@ -173,8 +173,8 @@ describe("side panel archive state", () => {
       card({ id: "valid" })
     ]);
 
-    expect(message).toContain("This affects 1 memory card(s): accepted 1.");
-    expect(message).toContain("1 memory card(s) only reference this archive and will be deleted.");
+    expect(message).toContain("This affects 1 memory card: accepted 1.");
+    expect(message).toContain("1 memory card references only this archive and will be deleted.");
     expect(message).not.toContain("also reference other archives");
   });
 

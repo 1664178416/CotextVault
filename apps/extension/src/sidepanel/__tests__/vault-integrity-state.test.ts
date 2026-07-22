@@ -12,7 +12,7 @@ describe("side panel vault integrity state", () => {
     const report = vaultIntegrityReport();
 
     expect(getVaultIntegrityLevel(report)).toBe("ok");
-    expect(formatVaultIntegritySummary(report)).toBe("Vault healthy. Checked 1 archive(s), 2 turn(s), 3 card(s).");
+    expect(formatVaultIntegritySummary(report)).toBe("Vault healthy. Checked 1 archive, 2 turns, 3 cards.");
     expect(formatVaultIntegrityResultMessage(report)).toBe("Vault integrity check passed.");
   });
 
@@ -34,10 +34,10 @@ describe("side panel vault integrity state", () => {
 
     expect(getVaultIntegrityLevel(report)).toBe("warning");
     expect(formatVaultIntegritySummary(report)).toBe(
-      "Found 2 source-grounding issue(s) across 1 archive(s), 2 turn(s), 3 card(s)."
+      "Found 2 source-grounding issues across 1 archive, 2 turns, 3 cards."
     );
     expect(formatVaultIntegrityResultMessage(report)).toBe(
-      "Vault integrity check found 2 issue(s). 1 detail(s) omitted."
+      "Vault integrity check found 2 issues. 1 detail omitted."
     );
     expect(formatVaultIntegrityIssue(report.issues[0]!)).toBe(
       'Missing turn: Source anchor references missing turn "turn-missing".'

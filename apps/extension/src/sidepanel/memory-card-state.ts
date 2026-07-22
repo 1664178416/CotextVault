@@ -8,6 +8,7 @@ import {
   type MemoryCardStatus,
   type Sensitivity
 } from "@contextvault/shared";
+import { formatCount } from "./count-state";
 
 export function formatMemoryCardDeleteConfirmation(card: MemoryCard): string {
   const safeCard = getSafeMemoryCardForRead(card);
@@ -21,7 +22,7 @@ export function formatMemoryCardDeleteConfirmation(card: MemoryCard): string {
     `Type: ${getMemoryTypeLabel(safeCard.type)}`,
     `Status: ${memoryStatusLabel(safeCard.status)}`,
     `Sensitivity: ${sensitivityLabel(effectiveSensitivity)}`,
-    `Sources: ${sourceAnchors.length} anchor(s) across ${sourceArchiveCount} archive(s)`
+    `Sources: ${formatCount(sourceAnchors.length, "anchor")} across ${formatCount(sourceArchiveCount, "archive")}`
   ];
 
   if (safeCard.status === "accepted") {

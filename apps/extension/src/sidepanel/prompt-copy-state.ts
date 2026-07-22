@@ -1,4 +1,5 @@
 import { getSafeSourceAnchors, type PromptContextBuildResult } from "@contextvault/shared";
+import { formatCount, pluralizeCount } from "./count-state";
 
 export interface PromptCopyOmissionSummary {
   omittedCardCount: number;
@@ -41,19 +42,24 @@ export function formatPromptCopyBudgetConfirmation(
     options.selectedCount,
     promptContext.includedCards.length + promptContext.omittedCards.length
   );
-  const parts = [`Prompt copy will include ${promptContext.includedCards.length} of ${selectedCount} selected memory card(s).`];
+  const parts = [
+    `Prompt copy will include ${promptContext.includedCards.length} of ${selectedCount} selected ${pluralizeCount(
+      selectedCount,
+      "memory card"
+    )}.`
+  ];
 
   if (promptContext.maxLength !== undefined) {
     parts.push(`Prompt budget: ${promptContext.length.toLocaleString()}/${promptContext.maxLength.toLocaleString()} characters.`);
   }
 
   if (summary.omittedCardCount > 0) {
-    parts.push(`It will omit ${summary.omittedCardCount} memory card(s) that do not fit.`);
+    parts.push(`It will omit ${formatCount(summary.omittedCardCount, "memory card")} that do not fit.`);
   }
 
   if (summary.omittedSourceAnchorCount > 0) {
     parts.push(
-      `It will omit ${summary.omittedSourceAnchorCount} extra source anchor(s) beyond ${normalizeSourceAnchorLimit(
+      `It will omit ${formatCount(summary.omittedSourceAnchorCount, "extra source anchor")} beyond ${normalizeSourceAnchorLimit(
         options.maxSourceAnchorsPerCard
       )} per included card.`
     );
@@ -74,14 +80,14 @@ export function formatPromptCopyResultMessage(
 ): string {
   const summary = summarizePromptCopyOmissions(promptContext, options);
   const textWasTrimmed = promptContext.truncated && summary.omittedCardCount === 0;
-  const parts = [`Copied ${promptContext.includedCards.length} memory card(s)`];
+  const parts = [`Copied ${formatCount(promptContext.includedCards.length, "memory card")}`];
 
   if (summary.omittedCardCount > 0) {
-    parts.push(`omitted ${summary.omittedCardCount} card(s) to stay within the prompt budget`);
+    parts.push(`omitted ${formatCount(summary.omittedCardCount, "card")} to stay within the prompt budget`);
   }
 
   if (summary.omittedSourceAnchorCount > 0) {
-    parts.push(`omitted ${summary.omittedSourceAnchorCount} extra source anchor(s)`);
+    parts.push(`omitted ${formatCount(summary.omittedSourceAnchorCount, "extra source anchor")}`);
   }
 
   if (textWasTrimmed) {

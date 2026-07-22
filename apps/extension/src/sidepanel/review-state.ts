@@ -13,6 +13,7 @@ import {
   type MemoryCardType,
   type Sensitivity
 } from "@contextvault/shared";
+import { formatCount } from "./count-state";
 
 export type ReviewStatus = Extract<MemoryCardStatus, "accepted" | "rejected">;
 
@@ -106,14 +107,14 @@ export function getReviewConfirmationMessage(cards: MemoryCard[], status: Review
     const summary = summarizeDraftSensitivity(cards);
 
     if (summary.secret > 0 || summary.sensitive > 0) {
-      return `Accept ${cards.length} proposed memory card(s), including ${formatSensitivitySummary(summary)}. Accepted cards are stored as long-term memory. Continue?`;
+      return `Accept ${formatCount(cards.length, "proposed memory card")}, including ${formatSensitivitySummary(summary)}. Accepted cards are stored as long-term memory. Continue?`;
     }
 
     return undefined;
   }
 
   if (cards.length > 1) {
-    return `Reject ${cards.length} proposed memory card(s)?`;
+    return `Reject ${formatCount(cards.length, "proposed memory card")}?`;
   }
 
   return undefined;

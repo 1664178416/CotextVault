@@ -58,6 +58,7 @@ import {
   getArchiveReferencedCards
 } from "./archive-state";
 import { copyTextToClipboard } from "./clipboard-state";
+import { formatCount } from "./count-state";
 import { formatDisplayError } from "./error-state";
 import {
   canExportMarkdownForScope,
@@ -1379,7 +1380,9 @@ function VaultIntegrityPanel({ report }: { report: VaultIntegrityReport }) {
               {formatVaultIntegrityIssue(issue)}
             </div>
           ))}
-          {report.omittedIssueCount > 0 ? <div>{report.omittedIssueCount} more issue detail(s) omitted.</div> : null}
+          {report.omittedIssueCount > 0 ? (
+            <div>{formatCount(report.omittedIssueCount, "more issue detail")} omitted.</div>
+          ) : null}
         </div>
       ) : null}
     </section>
