@@ -1,5 +1,6 @@
 import {
   MAX_SEARCH_QUERY_LENGTH,
+  formatCount,
   parseRecallSearchQuery,
   parseRecallSearchTerms,
   type MemoryCardType,
@@ -104,7 +105,7 @@ export function getSearchQueryLimitState(
   if (query.length >= Math.floor(normalizedMaxLength * 0.9)) {
     return {
       level: "warning",
-      message: `Search query is ${remainingCharacters.toLocaleString()} character(s) from the ${normalizedMaxLength.toLocaleString()}-character limit.`,
+      message: `Search query is ${formatCount(remainingCharacters, "character")} from the ${normalizedMaxLength.toLocaleString()}-character limit.`,
       remainingCharacters,
       maxLength: normalizedMaxLength
     };

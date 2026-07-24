@@ -1,5 +1,4 @@
-import { getSafeSourceAnchors, type PromptContextBuildResult } from "@contextvault/shared";
-import { formatCount, pluralizeCount } from "./count-state";
+import { formatCount, getSafeSourceAnchors, pluralizeCount, type PromptContextBuildResult } from "@contextvault/shared";
 
 export interface PromptCopyOmissionSummary {
   omittedCardCount: number;

@@ -1,4 +1,5 @@
 import type { MemoryCard, MemoryCardType, MemoryScope, ProviderId, Sensitivity, SourceAnchor } from "./types";
+import { formatCount } from "./count";
 import { getProviderLabel } from "./provider";
 import { getSafeMemoryCardForRead, getSafeSourceAnchors, normalizeMemoryCardForType } from "./memory-card";
 import { getEffectiveMemorySensitivity, redactProtectedText, redactSensitiveText } from "./privacy";
@@ -245,7 +246,7 @@ function formatPromptCardLines(card: MemoryCard, options: PromptContextFormatOpt
       formatSourceAnchor(anchor, { ...options, redactionSensitivity: effectiveSensitivity })
     );
     const omittedSuffix =
-      sourceAnchors.omittedCount > 0 ? `; +${sourceAnchors.omittedCount} more source anchor(s)` : "";
+      sourceAnchors.omittedCount > 0 ? `; +${formatCount(sourceAnchors.omittedCount, "more source anchor")}` : "";
 
     lines.push(`  Source: ${formattedAnchors.join("; ")}${omittedSuffix}`);
   }
@@ -307,8 +308,8 @@ function formatPromptLines(
   if (omittedCount > 0) {
     outputLines.push(
       options.compactOmission
-        ? `- Omitted ${omittedCount} memory card(s).`
-        : `- Omitted ${omittedCount} memory card(s) because the prompt context budget was reached.`
+        ? `- Omitted ${formatCount(omittedCount, "memory card")}.`
+        : `- Omitted ${formatCount(omittedCount, "memory card")} because the prompt context budget was reached.`
     );
   }
 

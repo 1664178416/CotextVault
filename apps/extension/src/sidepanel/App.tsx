@@ -33,6 +33,7 @@ import {
   MAX_MANUAL_MEMORY_BODY_LENGTH,
   MAX_SEARCH_QUERY_LENGTH,
   getProviderLabel,
+  formatCount,
   sortMemoryCardsForRecall,
   summarizeMemorySensitivity,
   type ArchiveWithTurns,
@@ -58,7 +59,6 @@ import {
   getArchiveReferencedCards
 } from "./archive-state";
 import { copyTextToClipboard } from "./clipboard-state";
-import { formatCount } from "./count-state";
 import { formatDisplayError } from "./error-state";
 import {
   canExportMarkdownForScope,
@@ -1211,7 +1211,7 @@ function ManualMemoryComposer({
         className={`field-footnote${tagStatus.message ? " is-error" : ""}`}
         id="manual-memory-tags-limit"
       >
-        {tagStatus.message ?? `${tagStatus.tagCount} tag(s)`}
+        {tagStatus.message ?? formatCount(tagStatus.tagCount, "tag")}
       </div>
     </form>
   );
@@ -1652,7 +1652,7 @@ function EditableCard({
         className={`field-footnote${tagStatus.message ? " is-error" : ""}`}
         id={`memory-card-tags-limit-${card.id}`}
       >
-        {tagStatus.message ?? `${tagStatus.tagCount} tag(s)`}
+        {tagStatus.message ?? formatCount(tagStatus.tagCount, "tag")}
       </div>
       <div className="button-row">
         <button className="ghost-button" onClick={() => onUpdate(card)} disabled={busy || cannotStoreDraft}>

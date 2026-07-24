@@ -104,7 +104,7 @@ describe("side panel search state", () => {
     expect(getSearchQueryLimitState("x".repeat(8), 10)).toBeUndefined();
     expect(getSearchQueryLimitState("x".repeat(9), 10)).toEqual({
       level: "warning",
-      message: "Search query is 1 character(s) from the 10-character limit.",
+      message: "Search query is 1 character from the 10-character limit.",
       remainingCharacters: 1,
       maxLength: 10
     });

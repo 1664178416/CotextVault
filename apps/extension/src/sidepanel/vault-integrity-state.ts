@@ -1,5 +1,4 @@
-import type { VaultIntegrityIssue, VaultIntegrityReport } from "@contextvault/shared";
-import { formatCount } from "./count-state";
+import { formatCount, type VaultIntegrityIssue, type VaultIntegrityReport } from "@contextvault/shared";
 
 export type VaultIntegrityLevel = "ok" | "warning";
 

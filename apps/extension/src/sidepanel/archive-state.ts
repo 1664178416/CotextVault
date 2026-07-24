@@ -2,6 +2,7 @@ import {
   classifySensitivity,
   getSafeMemoryCardForRead,
   getSafeSourceAnchors,
+  formatCount,
   redactProtectedText,
   type DeleteArchiveResult,
   type MemoryCard,
@@ -9,7 +10,6 @@ import {
   type Sensitivity,
   type SourceArchive
 } from "@contextvault/shared";
-import { formatCount } from "./count-state";
 
 type MemoryStatusCounts = Record<MemoryCardStatus, number>;
 

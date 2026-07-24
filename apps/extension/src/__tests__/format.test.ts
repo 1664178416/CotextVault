@@ -344,7 +344,6 @@ describe("markdown formatting", () => {
     expect(result.text).toContain("Relevant Context:");
     expect(result.text).toContain("[决策记录] Short decision: Use source anchors.");
     expect(result.text).not.toContain("prompt context budget was reached");
-    expect(result.text).not.toContain("Omitted 1 memory card(s).");
     expect(result.truncated).toBe(true);
   });
 
@@ -422,7 +421,7 @@ describe("markdown formatting", () => {
     expect(prompt).toContain("turn=turn-1");
     expect(prompt).toContain("turn=turn-2");
     expect(prompt).not.toContain("turn=turn-3");
-    expect(prompt).toContain("+1 more source anchor(s)");
+    expect(prompt).toContain("+1 more source anchor");
     expect(defaultPrompt).toContain("turn=turn-3");
     expect(markdown).toContain("turn=turn-3");
   });

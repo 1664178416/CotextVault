@@ -4,6 +4,7 @@ import {
   MAX_SOURCE_TURN_TEXT_LENGTH,
   MAX_SOURCE_TURNS_PER_ARCHIVE,
   classifySensitivity,
+  formatCount,
   redactProtectedText,
   truncateText,
   truncateToCodePointBoundary,
@@ -13,7 +14,6 @@ import {
   type SourceRole
 } from "@contextvault/shared";
 import { unzipSync, strFromU8 } from "fflate";
-import { formatCount } from "./count-state";
 
 type ChatGptTurnReadResult = {
   turn?: ConversationTurnCapture;

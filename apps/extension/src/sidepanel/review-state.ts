@@ -1,6 +1,7 @@
 import {
   applyMemoryCardStatus,
   applyMemoryCardType,
+  formatCount,
   formatSensitivitySummary,
   getEffectiveMemorySensitivity,
   MAX_MEMORY_CARD_OWNER_LENGTH,
@@ -13,7 +14,6 @@ import {
   type MemoryCardType,
   type Sensitivity
 } from "@contextvault/shared";
-import { formatCount } from "./count-state";
 
 export type ReviewStatus = Extract<MemoryCardStatus, "accepted" | "rejected">;
 

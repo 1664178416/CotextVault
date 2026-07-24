@@ -1,10 +1,10 @@
 import {
   classifySensitivity,
+  formatCount,
   redactProtectedText,
   type CaptureWarning,
   type Sensitivity
 } from "@contextvault/shared";
-import { formatCount } from "./count-state";
 
 export interface DisplayWarning {
   key: string;

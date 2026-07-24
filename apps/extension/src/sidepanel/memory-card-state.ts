@@ -1,5 +1,6 @@
 import {
   getEffectiveMemorySensitivity,
+  formatCount,
   getSafeMemoryCardForRead,
   getSafeSourceAnchors,
   getMemoryTypeLabel,
@@ -8,7 +9,6 @@ import {
   type MemoryCardStatus,
   type Sensitivity
 } from "@contextvault/shared";
-import { formatCount } from "./count-state";
 
 export function formatMemoryCardDeleteConfirmation(card: MemoryCard): string {
   const safeCard = getSafeMemoryCardForRead(card);

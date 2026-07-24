@@ -1,6 +1,11 @@
 import type { ArchiveWithTurns, CaptureWarning, MemoryCard, Sensitivity, VaultExport } from "@contextvault/shared";
-import { classifySensitivity, formatSensitivitySummary, summarizeMemorySensitivity } from "@contextvault/shared";
-import { formatCount, pluralizeCount } from "./count-state";
+import {
+  classifySensitivity,
+  formatCount,
+  formatSensitivitySummary,
+  pluralizeCount,
+  summarizeMemorySensitivity
+} from "@contextvault/shared";
 import { formatBytes } from "./storage-state";
 
 export type MarkdownExportScope = "accepted" | "proposed" | "all";
