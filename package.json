@@ -12,5 +12,8 @@
     "check": "npm run check -w @contextvault/extension",
     "test": "npm run test -w @contextvault/extension",
     "verify": "npm run check && npm run test && npm run build && npm audit"
+  },
+  "devDependencies": {
+    "postcss": "^8.5.23"
   }
 }

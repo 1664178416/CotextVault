@@ -1,6 +1,7 @@
 import {
   MAX_SOURCE_TURN_TEXT_LENGTH,
   MAX_SOURCE_TURNS_PER_ARCHIVE,
+  formatCount,
   normalizeText,
   truncateToCodePointBoundary,
   type CaptureWarning,
@@ -193,9 +194,10 @@ function selectClaudeTurns(): DomSelectionResult {
 
 function selectGenericTurns(): ConversationTurnCapture[] {
   const main = document.querySelector<HTMLElement>("main") ?? document.body;
-  const candidates = Array.from(
-    main.querySelectorAll<HTMLElement>("article, [role='article'], [data-message-author-role], pre, p")
-  )
+  const nodes = filterNestedGenericTurnNodes(
+    Array.from(main.querySelectorAll<HTMLElement>("article, [role='article'], [data-message-author-role], pre, p"))
+  );
+  const candidates = nodes
     .map((node, index): CandidateTurn => {
       const text = extractNodeText(node);
       const score = scoreText(text);
@@ -217,6 +219,26 @@ function selectGenericTurns(): ConversationTurnCapture[] {
     .sort((a, b) => a.documentIndex - b.documentIndex);
 
   return best.filter(hasUsefulText);
+}
+
+function filterNestedGenericTurnNodes(nodes: HTMLElement[]): HTMLElement[] {
+  const candidates = new Set(nodes);
+
+  return nodes.filter((node) => !hasCandidateTurnAncestor(node, candidates));
+}
+
+function hasCandidateTurnAncestor(node: HTMLElement, candidates: Set<HTMLElement>): boolean {
+  let parent = node.parentElement;
+
+  while (parent) {
+    if (candidates.has(parent)) {
+      return true;
+    }
+
+    parent = parent.parentElement;
+  }
+
+  return false;
 }
 
 function providerSelectorEmptyWarning(providerLabel: string): CaptureWarning {
@@ -285,14 +307,16 @@ function boundDomTurns(turns: ConversationTurnCapture[]): DomSelectionResult {
   if (truncatedTextCount > 0) {
     warnings.push({
       code: "dom_turn_text_truncated",
-      message: `Truncated ${truncatedTextCount} DOM turn(s) to ${MAX_SOURCE_TURN_TEXT_LENGTH} characters before capture.`
+      message: `Truncated ${formatCount(truncatedTextCount, "DOM turn")} to ${MAX_SOURCE_TURN_TEXT_LENGTH} characters before capture.`
     });
   }
 
   if (textLimitedTurns.length > MAX_SOURCE_TURNS_PER_ARCHIVE) {
+    const skippedTurnCount = textLimitedTurns.length - MAX_SOURCE_TURNS_PER_ARCHIVE;
+
     warnings.push({
       code: "dom_turn_limit_reached",
-      message: `Captured the first ${MAX_SOURCE_TURNS_PER_ARCHIVE} DOM turn(s) and skipped ${textLimitedTurns.length - MAX_SOURCE_TURNS_PER_ARCHIVE} additional turn(s).`
+      message: `Captured the first ${MAX_SOURCE_TURNS_PER_ARCHIVE} DOM turns and skipped ${formatCount(skippedTurnCount, "additional turn")}.`
     });
   }
 
@@ -320,7 +344,7 @@ function buildDomHealthWarnings(
   if (selectedTurnCount > dedupedTurnCount) {
     warnings.push({
       code: "duplicate_dom_turns_removed",
-      message: `Removed ${selectedTurnCount - dedupedTurnCount} duplicate DOM turn(s) during capture normalization.`
+      message: `Removed ${formatCount(selectedTurnCount - dedupedTurnCount, "duplicate DOM turn")} during capture normalization.`
     });
   }
 

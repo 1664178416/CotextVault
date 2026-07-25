@@ -87,6 +87,28 @@ describe("DOM conversation capture", () => {
     expect(capture.warnings.map((warning) => warning.code)).toContain("provider_selector_fallback");
   });
 
+  it("keeps generic fallback turns at container level instead of nested paragraph fragments", () => {
+    document.body.innerHTML = `
+      <main>
+        <article>
+          <p>User asks for a capture fallback that avoids duplicate nested text.</p>
+          <p>They want one source turn per visible conversation block.</p>
+        </article>
+        <article>
+          <p>Assistant recommends preferring turn containers over nested paragraphs.</p>
+          <p>This keeps source archives easier to review.</p>
+        </article>
+      </main>
+    `;
+
+    const capture = captureConversationFromDom("gemini");
+
+    expect(capture.turns).toHaveLength(2);
+    expect(capture.turns.map((turn) => turn.sourceSelector)).toEqual(["article", "article"]);
+    expect(capture.turns[0]?.text).toContain("one source turn per visible conversation block");
+    expect(capture.turns[1]?.text).toContain("source archives easier to review");
+  });
+
   it("falls back when provider selectors exist but contain no useful text", () => {
     document.body.innerHTML = `
       <main>
@@ -147,6 +169,14 @@ describe("DOM conversation capture", () => {
 
     expect(capture.turns).toHaveLength(2);
     expect(capture.warnings.map((warning) => warning.code)).toContain("duplicate_dom_turns_removed");
+    expect(capture.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "duplicate_dom_turns_removed",
+          message: "Removed 1 duplicate DOM turn during capture normalization."
+        })
+      ])
+    );
   });
 
   it("keeps long same-prefix DOM turns when their full text differs", () => {
@@ -179,6 +209,14 @@ describe("DOM conversation capture", () => {
     expect(capture.turns.at(-1)?.text).toContain(`Visible bounded turn ${MAX_SOURCE_TURNS_PER_ARCHIVE - 1}`);
     expect(JSON.stringify(capture.turns)).not.toContain(`Visible bounded turn ${MAX_SOURCE_TURNS_PER_ARCHIVE}`);
     expect(capture.warnings.map((warning) => warning.code)).toContain("dom_turn_limit_reached");
+    expect(capture.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "dom_turn_limit_reached",
+          message: `Captured the first ${MAX_SOURCE_TURNS_PER_ARCHIVE} DOM turns and skipped 1 additional turn.`
+        })
+      ])
+    );
     expect(capture.warnings.map((warning) => warning.code)).not.toContain("duplicate_dom_turns_removed");
   });
 
@@ -197,7 +235,16 @@ describe("DOM conversation capture", () => {
     expect(capture.turns[0]?.text).toHaveLength(MAX_SOURCE_TURN_TEXT_LENGTH - 1);
     expect(capture.turns[0]?.text).toBe("A".repeat(MAX_SOURCE_TURN_TEXT_LENGTH - 1));
     expect(capture.warnings.map((warning) => warning.code)).toContain("dom_turn_text_truncated");
+    expect(capture.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "dom_turn_text_truncated",
+          message: `Truncated 1 DOM turn to ${MAX_SOURCE_TURN_TEXT_LENGTH} characters before capture.`
+        })
+      ])
+    );
   });
+
   it("warns when provider role metadata is unknown", () => {
     document.body.innerHTML = `
       <main>
