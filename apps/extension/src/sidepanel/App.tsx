@@ -39,7 +39,6 @@ import {
   type ArchiveWithTurns,
   type BrowserTabContext,
   type CaptureWarning,
-  type CaptureWarningCount,
   type ManualMemoryCardInput,
   type MemoryCard,
   type MemoryCardType,
@@ -74,6 +73,7 @@ import {
   parseConversationCaptureImportFile,
   parseVaultImportText
 } from "./import-state";
+import { formatImportWarningSummary } from "./import-warning-state";
 import {
   formatManualMemoryCreatedMessage,
   getManualMemoryConfirmationMessage,
@@ -484,7 +484,7 @@ export function App() {
       setMessage(
         `已导入 ${result.importedCount} 段对话、${result.archiveCount} 个新存档、${result.turnCount} 个 turn、${result.proposedMemoryCardCount} 张候选记忆卡。` +
           (result.deduplicatedCount > 0 ? ` 已跳过 ${result.deduplicatedCount} 段重复对话。` : "") +
-          formatImportWarningSummary(result.warningCounts)
+          formatImportWarningSummary(result.warningCounts, captureWarningLabel)
       );
       await refreshAll();
       setActiveView("capture");
@@ -1889,20 +1889,6 @@ function markdownScopeLabel(scope: MarkdownExportScope): string {
     case "all":
       return "全部记忆";
   }
-}
-
-function formatImportWarningSummary(warningCounts: CaptureWarningCount[]): string {
-  if (warningCounts.length === 0) {
-    return "";
-  }
-
-  const visibleWarnings = warningCounts
-    .slice(0, 4)
-    .map((warning) => `${captureWarningLabel(warning.code)} ${warning.count} 次`)
-    .join("、");
-  const suffix = warningCounts.length > 4 ? ` 等 ${warningCounts.length} 类` : "";
-
-  return ` 导入提示：${visibleWarnings}${suffix}。`;
 }
 
 function captureWarningLabel(code: string): string {
