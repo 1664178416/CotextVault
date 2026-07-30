@@ -20,6 +20,47 @@ export type WarningSeverity = "high" | "medium" | "low";
 const DEFAULT_MAX_DISPLAY_WARNINGS = 5;
 const MAX_DISPLAY_WARNING_MESSAGE_LENGTH = 240;
 
+export function captureWarningLabel(code: string): string {
+  switch (code) {
+    case "dom_fallback":
+      return "DOM 捕获";
+    case "provider_selector_fallback":
+      return "选择器回退";
+    case "generic_dom_adapter":
+      return "通用适配器";
+    case "no_dom_turns":
+      return "未捕获到 turn";
+    case "duplicate_dom_turns_removed":
+      return "已移除重复 turn";
+    case "sparse_dom_capture":
+      return "捕获偏少";
+    case "missing_user_turn":
+      return "缺少用户 turn";
+    case "missing_assistant_turn":
+      return "缺少助手 turn";
+    case "unknown_role_detected":
+      return "存在未知角色";
+    case "sensitive_content_detected":
+      return "含敏感内容";
+    case "secret_content_detected":
+      return "含密钥内容";
+    case "official_export_import":
+      return "官方导出";
+    case "chatgpt_current_path":
+      return "ChatGPT 当前分支";
+    case "chatgpt_mapping_fallback":
+      return "ChatGPT 时间排序回退";
+    case "chatgpt_non_text_parts_skipped":
+      return "跳过非文本内容";
+    case "chatgpt_non_conversation_roles_skipped":
+      return "跳过系统/工具消息";
+    case "chatgpt_empty_conversations_skipped":
+      return "跳过空对话";
+    default:
+      return code;
+  }
+}
+
 export function summarizeWarningsForDisplay(
   warnings: CaptureWarning[],
   options: { maxItems?: number } = {}

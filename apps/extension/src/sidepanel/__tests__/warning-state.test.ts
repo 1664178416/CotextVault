@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { summarizeWarningsForDisplay } from "../warning-state";
+import { captureWarningLabel, summarizeWarningsForDisplay } from "../warning-state";
 
 describe("side panel warning state", () => {
+  it("labels known capture warning codes and preserves unknown codes", () => {
+    expect(captureWarningLabel("dom_fallback")).toBe("DOM 捕获");
+    expect(captureWarningLabel("provider_selector_fallback")).toBe("选择器回退");
+    expect(captureWarningLabel("chatgpt_empty_conversations_skipped")).toBe("跳过空对话");
+    expect(captureWarningLabel("custom_warning")).toBe("custom_warning");
+  });
+
   it("summarizes identical warnings for display", () => {
     expect(
       summarizeWarningsForDisplay([
