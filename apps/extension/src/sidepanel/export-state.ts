@@ -51,6 +51,31 @@ export function shouldConfirmMemoryDisclosure(
   return summary.secret > 0 || summary.sensitive > 0;
 }
 
+export function formatMemoryDisclosureMessage(
+  cards: MemoryCard[],
+  actionLabel: string,
+  options: { redactSensitive?: boolean } = {}
+): string | undefined {
+  if (!shouldConfirmMemoryDisclosure(cards, options)) {
+    return undefined;
+  }
+
+  return `${actionLabel}内容包含 ${formatSensitivitySummary(
+    summarizeMemorySensitivity(cards)
+  )} 记忆卡，可能暴露敏感信息。继续？`;
+}
+
+export function getMarkdownExportScopeLabel(scope: MarkdownExportScope): string {
+  switch (scope) {
+    case "accepted":
+      return "已入库记忆";
+    case "proposed":
+      return "候选记忆";
+    case "all":
+      return "全部记忆";
+  }
+}
+
 export function prepareVaultExportDownload(
   vault: VaultExport,
   options: { largeExportBytes?: number } = {}

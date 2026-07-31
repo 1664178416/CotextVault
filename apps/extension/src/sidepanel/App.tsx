@@ -22,7 +22,6 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   buildMemoryCardsPromptContext,
-  formatSensitivitySummary,
   getEffectiveMemorySensitivity,
   getMemoryScopeLabel,
   getMemoryTypeLabel,
@@ -35,7 +34,6 @@ import {
   getProviderLabel,
   formatCount,
   sortMemoryCardsForRecall,
-  summarizeMemorySensitivity,
   type ArchiveWithTurns,
   type BrowserTabContext,
   type CaptureWarning,
@@ -62,9 +60,10 @@ import { formatDisplayError } from "./error-state";
 import {
   canExportMarkdownForScope,
   formatArchiveExportDisclosureMessage,
+  formatMemoryDisclosureMessage,
   formatVaultExportDisclosureMessage,
+  getMarkdownExportScopeLabel,
   prepareVaultExportDownload,
-  shouldConfirmMemoryDisclosure,
   type MarkdownExportScope
 } from "./export-state";
 import {
@@ -428,7 +427,7 @@ export function App() {
     });
     const safetyLabel = options.redactSensitive ? "redacted-" : "";
     downloadText(markdown, `contextvault-${safetyLabel}memories-${scope}-${timestampStamp()}.md`, "text/markdown");
-    setMessage(`已导出 ${markdownScopeLabel(scope)} Markdown。`);
+    setMessage(`已导出 ${getMarkdownExportScopeLabel(scope)} Markdown。`);
   };
 
   const exportArchiveData = async (archiveId: string) => {
@@ -1858,15 +1857,9 @@ function confirmMemoryDisclosure(
   actionLabel: string,
   options: { redactSensitive?: boolean } = {}
 ): boolean {
-  const summary = summarizeMemorySensitivity(cards);
+  const message = formatMemoryDisclosureMessage(cards, actionLabel, options);
 
-  if (!shouldConfirmMemoryDisclosure(cards, options)) {
-    return true;
-  }
-
-  return window.confirm(
-    `${actionLabel}内容包含 ${formatSensitivitySummary(summary)} 记忆卡，可能暴露敏感信息。继续？`
-  );
+  return message ? window.confirm(message) : true;
 }
 
 async function listCardsForMarkdownScope(scope: MarkdownExportScope): Promise<MemoryCard[]> {
@@ -1878,15 +1871,4 @@ async function listCardsForMarkdownScope(scope: MarkdownExportScope): Promise<Me
     type: "LIST_MEMORY_CARDS",
     status: scope
   });
-}
-
-function markdownScopeLabel(scope: MarkdownExportScope): string {
-  switch (scope) {
-    case "accepted":
-      return "已入库记忆";
-    case "proposed":
-      return "候选记忆";
-    case "all":
-      return "全部记忆";
-  }
 }

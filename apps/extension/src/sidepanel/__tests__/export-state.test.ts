@@ -3,7 +3,9 @@ import type { ArchiveWithTurns, MemoryCard, VaultExport } from "@contextvault/sh
 import {
   canExportMarkdownForScope,
   formatArchiveExportDisclosureMessage,
+  formatMemoryDisclosureMessage,
   formatVaultExportDisclosureMessage,
+  getMarkdownExportScopeLabel,
   prepareVaultExportDownload,
   shouldConfirmMemoryDisclosure
 } from "../export-state";
@@ -119,6 +121,23 @@ describe("side panel export state", () => {
         } as unknown as MemoryCard
       ])
     ).toBe(true);
+  });
+
+  it("formats memory disclosure messages only for unredacted protected cards", () => {
+    const sensitive = card({ id: "sensitive", sensitivity: "sensitive" });
+    const secret = card({ id: "secret", sensitivity: "secret" });
+
+    expect(formatMemoryDisclosureMessage([sensitive, secret], "导出")).toBe(
+      "导出内容包含 1 secret, 1 sensitive 记忆卡，可能暴露敏感信息。继续？"
+    );
+    expect(formatMemoryDisclosureMessage([card({ id: "normal" })], "复制")).toBeUndefined();
+    expect(formatMemoryDisclosureMessage([sensitive], "导出", { redactSensitive: true })).toBeUndefined();
+  });
+
+  it("labels every Markdown export scope consistently", () => {
+    expect(getMarkdownExportScopeLabel("accepted")).toBe("已入库记忆");
+    expect(getMarkdownExportScopeLabel("proposed")).toBe("候选记忆");
+    expect(getMarkdownExportScopeLabel("all")).toBe("全部记忆");
   });
 
   it("prepares vault export JSON without a large-export warning when under threshold", () => {
