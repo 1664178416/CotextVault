@@ -128,7 +128,13 @@ describe("side panel export state", () => {
     const secret = card({ id: "secret", sensitivity: "secret" });
 
     expect(formatMemoryDisclosureMessage([sensitive, secret], "导出")).toBe(
-      "导出内容包含 1 secret, 1 sensitive 记忆卡，可能暴露敏感信息。继续？"
+      "导出内容包含 1 张密钥级记忆卡、1 张敏感级记忆卡，可能暴露敏感信息。继续？"
+    );
+    expect(formatMemoryDisclosureMessage([secret], "复制")).toBe(
+      "复制内容包含 1 张密钥级记忆卡，可能暴露敏感信息。继续？"
+    );
+    expect(formatMemoryDisclosureMessage([sensitive], "复制")).toBe(
+      "复制内容包含 1 张敏感级记忆卡，可能暴露敏感信息。继续？"
     );
     expect(formatMemoryDisclosureMessage([card({ id: "normal" })], "复制")).toBeUndefined();
     expect(formatMemoryDisclosureMessage([sensitive], "导出", { redactSensitive: true })).toBeUndefined();

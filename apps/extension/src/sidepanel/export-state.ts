@@ -1,4 +1,11 @@
-import type { ArchiveWithTurns, CaptureWarning, MemoryCard, Sensitivity, VaultExport } from "@contextvault/shared";
+import type {
+  ArchiveWithTurns,
+  CaptureWarning,
+  MemoryCard,
+  Sensitivity,
+  SensitivitySummary,
+  VaultExport
+} from "@contextvault/shared";
 import {
   classifySensitivity,
   formatCount,
@@ -46,9 +53,7 @@ export function shouldConfirmMemoryDisclosure(
     return false;
   }
 
-  const summary = summarizeMemorySensitivity(cards);
-
-  return summary.secret > 0 || summary.sensitive > 0;
+  return hasProtectedMemories(summarizeMemorySensitivity(cards));
 }
 
 export function formatMemoryDisclosureMessage(
@@ -56,13 +61,17 @@ export function formatMemoryDisclosureMessage(
   actionLabel: string,
   options: { redactSensitive?: boolean } = {}
 ): string | undefined {
-  if (!shouldConfirmMemoryDisclosure(cards, options)) {
+  if (options.redactSensitive) {
     return undefined;
   }
 
-  return `${actionLabel}内容包含 ${formatSensitivitySummary(
-    summarizeMemorySensitivity(cards)
-  )} 记忆卡，可能暴露敏感信息。继续？`;
+  const summary = summarizeMemorySensitivity(cards);
+
+  if (!hasProtectedMemories(summary)) {
+    return undefined;
+  }
+
+  return `${actionLabel}内容包含 ${formatProtectedMemorySummary(summary)}，可能暴露敏感信息。继续？`;
 }
 
 export function getMarkdownExportScopeLabel(scope: MarkdownExportScope): string {
@@ -186,6 +195,19 @@ function formatSensitivityCountSummary(
   }
 
   return `${parts[0]} and ${parts[1]}`;
+}
+
+function hasProtectedMemories(summary: SensitivitySummary): boolean {
+  return summary.secret > 0 || summary.sensitive > 0;
+}
+
+function formatProtectedMemorySummary(summary: SensitivitySummary): string {
+  return [
+    summary.secret > 0 ? `${summary.secret} 张密钥级记忆卡` : "",
+    summary.sensitive > 0 ? `${summary.sensitive} 张敏感级记忆卡` : ""
+  ]
+    .filter(Boolean)
+    .join("、");
 }
 
 function summarizeArchiveWarningSensitivity(archives: ArchiveWithTurns[]): Record<ArchiveWarningSensitivity, number> {
