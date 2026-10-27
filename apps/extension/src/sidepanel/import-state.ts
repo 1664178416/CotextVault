@@ -387,12 +387,16 @@ function readCurrentNodePath(mapping: Record<string, unknown>, currentNodeId: st
   const seen = new Set<string>();
   let nodeId: string | undefined = currentNodeId;
 
-  while (nodeId && !seen.has(nodeId)) {
+  while (nodeId) {
+    if (seen.has(nodeId)) {
+      return [];
+    }
+
     seen.add(nodeId);
     const node = mapping[nodeId];
 
     if (!isRecord(node)) {
-      break;
+      return [];
     }
 
     path.push(node);

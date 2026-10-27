@@ -248,6 +248,28 @@ describe("vault import state helpers", () => {
     ]);
   });
 
+  it.each([
+    ["missing parent", "missing-node"],
+    ["parent cycle", "assistant"]
+  ])("falls back to mapping when the current_node chain has a %s", (_case, parentId) => {
+    const conversation = chatGptExportConversation() as Record<string, unknown>;
+    const mapping = conversation.mapping as Record<string, Record<string, unknown>>;
+    mapping.assistant!.parent = parentId;
+    conversation.current_node = "assistant";
+
+    const captures = parseConversationCaptureImportText(JSON.stringify([conversation]));
+
+    expect(captures).toEqual([
+      expect.objectContaining({
+        turns: [
+          expect.objectContaining({ role: "user", text: "Design ContextVault." }),
+          expect.objectContaining({ role: "assistant", text: "Use reviewed memory cards." })
+        ],
+        warnings: expect.arrayContaining([expect.objectContaining({ code: "chatgpt_mapping_fallback" })])
+      })
+    ]);
+  });
+
   it("falls back to mapping import when current_node has no visible conversation turns", () => {
     const captures = parseConversationCaptureImportText(JSON.stringify([chatGptRootCurrentNodeConversation()]));
 
