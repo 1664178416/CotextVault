@@ -32,6 +32,13 @@ describe("side panel search state", () => {
     expect(normalizeMemoryRecallQueryInput("abcdef", -1)).toBe("");
   });
 
+  it("does not split a surrogate pair at the search limit", () => {
+    const emoji = String.fromCodePoint(0x1f9e0);
+
+    expect(normalizeMemoryRecallQueryInput(`ab${emoji}cd`, 3)).toBe("ab");
+    expect(normalizeMemoryRecallQueryInput(`ab${emoji}cd`, 4)).toBe(`ab${emoji}`);
+  });
+
   it("does not return an empty state when memories are visible", () => {
     expect(
       getMemoryRecallEmptyState({
