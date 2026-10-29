@@ -1,4 +1,4 @@
-import { classifySensitivity, redactProtectedText } from "@contextvault/shared";
+import { classifySensitivity, redactProtectedText, truncateToCodePointBoundary } from "@contextvault/shared";
 
 const MAX_DISPLAY_ERROR_LENGTH = 360;
 
@@ -20,5 +20,7 @@ export function sanitizeDisplayErrorMessage(message: string, maxLength = MAX_DIS
   const sensitivity = classifySensitivity(normalized);
   const sanitized = sensitivity === "normal" ? normalized : redactProtectedText(normalized, sensitivity);
 
-  return sanitized.length > maxLength ? `${sanitized.slice(0, Math.max(0, maxLength - 3)).trim()}...` : sanitized;
+  return sanitized.length > maxLength
+    ? `${truncateToCodePointBoundary(sanitized, Math.max(0, maxLength - 3)).trim()}...`
+    : sanitized;
 }

@@ -31,4 +31,8 @@ describe("runtime error formatting", () => {
     expect(message.endsWith("...")).toBe(true);
     expect(message.length).toBe(360);
   });
+
+  it("does not split a surrogate pair while truncating runtime errors", () => {
+    expect(sanitizeRuntimeErrorMessage(`${"x".repeat(356)}🙂tail`)).toBe(`${"x".repeat(356)}...`);
+  });
 });

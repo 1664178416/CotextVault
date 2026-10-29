@@ -31,4 +31,8 @@ describe("side panel error state", () => {
     expect(message).toBe("First line xxxxxxxxxxxxxxxxxx...");
     expect(message).toHaveLength(32);
   });
+
+  it("does not split a surrogate pair while truncating display errors", () => {
+    expect(sanitizeDisplayErrorMessage(`${"x".repeat(6)}🙂tail`, 10)).toBe(`${"x".repeat(6)}...`);
+  });
 });

@@ -1,4 +1,4 @@
-import { classifySensitivity, redactProtectedText } from "@contextvault/shared";
+import { classifySensitivity, redactProtectedText, truncateToCodePointBoundary } from "@contextvault/shared";
 
 const MAX_RUNTIME_ERROR_LENGTH = 360;
 
@@ -20,6 +20,6 @@ export function sanitizeRuntimeErrorMessage(message: string | undefined, fallbac
   const sanitized = sensitivity === "normal" ? normalized : redactProtectedText(normalized, sensitivity);
 
   return sanitized.length > MAX_RUNTIME_ERROR_LENGTH
-    ? `${sanitized.slice(0, MAX_RUNTIME_ERROR_LENGTH - 3).trim()}...`
+    ? `${truncateToCodePointBoundary(sanitized, MAX_RUNTIME_ERROR_LENGTH - 3).trim()}...`
     : sanitized;
 }
