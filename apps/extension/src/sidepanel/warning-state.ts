@@ -2,6 +2,7 @@ import {
   classifySensitivity,
   formatCount,
   redactProtectedText,
+  truncateToCodePointBoundary,
   type CaptureWarning,
   type Sensitivity
 } from "@contextvault/shared";
@@ -190,5 +191,5 @@ function truncateDisplayText(text: string, maxLength: number): string {
     return normalized;
   }
 
-  return `${normalized.slice(0, Math.max(0, maxLength - 3)).trim()}...`;
+  return `${truncateToCodePointBoundary(normalized, Math.max(0, maxLength - 3)).trim()}...`;
 }

@@ -148,4 +148,15 @@ describe("side panel warning state", () => {
     expect(warnings[0]?.message.length).toBeLessThanOrEqual(240);
     expect(warnings[0]?.message.endsWith("...")).toBe(true);
   });
+
+  it("does not split a surrogate pair while truncating warning messages", () => {
+    const warnings = summarizeWarningsForDisplay([
+      {
+        code: "chatgpt_non_text_parts_skipped",
+        message: `${"x".repeat(236)}🙂tail`
+      }
+    ]);
+
+    expect(warnings[0]?.message).toBe(`${"x".repeat(236)}...`);
+  });
 });
