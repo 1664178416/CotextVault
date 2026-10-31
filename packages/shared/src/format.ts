@@ -356,7 +356,13 @@ function groupCardsByType(cards: MemoryCard[]): Array<[MemoryCardType, MemoryCar
 
   for (const rawCard of cards) {
     const card = normalizeMemoryCardForType(rawCard);
-    groups.set(card.type, [...(groups.get(card.type) ?? []), card]);
+    const group = groups.get(card.type);
+
+    if (group) {
+      group.push(card);
+    } else {
+      groups.set(card.type, [card]);
+    }
   }
 
   return [...groups.entries()];
