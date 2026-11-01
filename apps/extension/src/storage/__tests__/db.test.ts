@@ -1,5 +1,5 @@
 import "fake-indexeddb/auto";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { MemoryCard, SourceArchive, SourceTurn, VaultExport } from "@contextvault/shared";
 import {
   MAX_CAPTURE_WARNING_MESSAGE_LENGTH,
@@ -31,6 +31,20 @@ beforeEach(async () => {
 });
 
 describe("IndexedDB vault storage", () => {
+  it("retries opening the database after a transient open failure", async () => {
+    const open = vi.spyOn(indexedDB, "open").mockImplementationOnce(() => {
+      throw new Error("Temporary database failure");
+    });
+
+    try {
+      await expect(listArchives()).rejects.toThrow("Temporary database failure");
+      await expect(listArchives()).resolves.toEqual([]);
+      expect(open).toHaveBeenCalledTimes(2);
+    } finally {
+      open.mockRestore();
+    }
+  });
+
   it("stores archives, ordered turns, memory cards, and contentHash lookups", async () => {
     await saveArchiveWithTurns(archive({ id: "archive-1", contentHash: "hash-1" }), [
       turn({ id: "turn-2", archiveId: "archive-1", orderIndex: 1, text: "Second turn." }),

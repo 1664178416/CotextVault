@@ -69,7 +69,7 @@ function openDatabase(): Promise<IDBDatabase> {
     return dbPromise;
   }
 
-  dbPromise = new Promise((resolve, reject) => {
+  const opening = new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onupgradeneeded = () => {
@@ -111,6 +111,11 @@ function openDatabase(): Promise<IDBDatabase> {
       };
       resolve(dbInstance);
     };
+  });
+
+  dbPromise = opening.catch((error: unknown) => {
+    dbPromise = undefined;
+    throw error;
   });
 
   return dbPromise;
