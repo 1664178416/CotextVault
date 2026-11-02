@@ -1173,7 +1173,13 @@ function groupTurnsByArchiveId(turns: SourceTurn[]): Map<string, SourceTurn[]> {
   const groups = new Map<string, SourceTurn[]>();
 
   for (const turn of turns) {
-    groups.set(turn.archiveId, [...(groups.get(turn.archiveId) ?? []), turn]);
+    const group = groups.get(turn.archiveId);
+
+    if (group) {
+      group.push(turn);
+    } else {
+      groups.set(turn.archiveId, [turn]);
+    }
   }
 
   return groups;
