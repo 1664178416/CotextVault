@@ -585,6 +585,21 @@ describe("memory search", () => {
     expect(snippetText).not.toContain("sk-abcdefghijklmnopqrstuvwxyz123456");
   });
 
+  it("redacts full text before clipping a snippet across a long secret", () => {
+    const secret = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const [result] = rankMemoryCards(
+      [card({ body: `${"A".repeat(120)} api_key=${secret} alice@example.com decision ${"B".repeat(120)}` })],
+      "decision",
+      { status: "accepted" }
+    );
+    const snippet = result?.snippets.find((item) => item.field === "body")?.text ?? "";
+
+    expect(snippet).toContain("api_key=[REDACTED_SECRET]");
+    expect(snippet).toContain("[REDACTED_EMAIL]");
+    expect(snippet).toContain("decision");
+    expect(snippet).not.toContain(secret.slice(-20));
+  });
+
   it("returns search snippets for matched fields", () => {
     const [result] = rankMemoryCards(
       [

@@ -333,20 +333,18 @@ function makeSnippet(
   radius = 44
 ): string {
   const normalized = normalizeText(sourceText);
-  const lower = normalized.toLowerCase();
+  const visibleText = redactionSensitivity ? redactProtectedText(normalized, redactionSensitivity) : normalized;
+  const lower = visibleText.toLowerCase();
   const index = lower.indexOf(term.toLowerCase());
-  const fullSnippet = redactionSensitivity ? redactProtectedText(normalized, redactionSensitivity) : normalized;
 
-  if (index < 0 || normalized.length <= radius * 2) {
-    return fullSnippet;
+  if (index < 0 || visibleText.length <= radius * 2) {
+    return visibleText;
   }
 
   const start = Math.max(0, index - radius);
-  const end = Math.min(normalized.length, index + term.length + radius);
+  const end = Math.min(visibleText.length, index + term.length + radius);
   const prefix = start > 0 ? "..." : "";
-  const suffix = end < normalized.length ? "..." : "";
+  const suffix = end < visibleText.length ? "..." : "";
 
-  const snippet = `${prefix}${normalized.slice(start, end)}${suffix}`;
-
-  return redactionSensitivity ? redactProtectedText(snippet, redactionSensitivity) : snippet;
+  return `${prefix}${visibleText.slice(start, end)}${suffix}`;
 }
