@@ -268,18 +268,18 @@ function hasUsefulText(turn: ConversationTurnCapture): boolean {
 }
 
 function dedupeTurns(turns: ConversationTurnCapture[]): ConversationTurnCapture[] {
-  const seen = new Set<string>();
   const result: ConversationTurnCapture[] = [];
+  let previousKey: string | undefined;
 
   for (const turn of turns) {
     const text = normalizeText(turn.text);
     const key = `${turn.role}:${text.toLowerCase()}`;
 
-    if (seen.has(key)) {
+    if (key === previousKey) {
       continue;
     }
 
-    seen.add(key);
+    previousKey = key;
     result.push({
       ...turn,
       id: turn.id ?? crypto.randomUUID(),

@@ -179,6 +179,25 @@ describe("DOM conversation capture", () => {
     );
   });
 
+  it("preserves repeated messages separated by another conversation turn", () => {
+    document.body.innerHTML = `
+      <main>
+        <div data-message-author-role="user">Please review this decision.</div>
+        <div data-message-author-role="assistant">The first review is complete.</div>
+        <div data-message-author-role="user">Please review this decision.</div>
+      </main>
+    `;
+
+    const capture = captureConversationFromDom("chatgpt");
+
+    expect(capture.turns.map((turn) => turn.text)).toEqual([
+      "Please review this decision.",
+      "The first review is complete.",
+      "Please review this decision."
+    ]);
+    expect(capture.warnings.map((warning) => warning.code)).not.toContain("duplicate_dom_turns_removed");
+  });
+
   it("keeps long same-prefix DOM turns when their full text differs", () => {
     const sharedPrefix = "A".repeat(320);
     document.body.innerHTML = `
