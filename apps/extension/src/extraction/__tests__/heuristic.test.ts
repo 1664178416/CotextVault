@@ -58,6 +58,26 @@ describe("heuristic memory extraction", () => {
     );
   });
 
+  it("keeps long candidate anchors aligned with their literal source span", () => {
+    const source = turn("turn-long", `Use local-first storage ${"and source anchors ".repeat(17)}`);
+    const [memory] = proposeMemoryCards(capture, [source]);
+    const anchor = memory?.sourceAnchors[0];
+
+    expect(memory?.body.length).toBeGreaterThan(240);
+    expect(anchor?.quote).toBe(source.text.slice(anchor!.charStart, anchor!.charEnd));
+    expect(anchor?.quote?.length).toBeLessThanOrEqual(240);
+  });
+
+  it("anchors fallback summaries to source text rather than the truncated summary", () => {
+    const source = turn("turn-fallback", "Project archives preserve conversation context ".repeat(11));
+    const [memory] = proposeMemoryCards(capture, [source]);
+    const anchor = memory?.sourceAnchors[0];
+
+    expect(memory?.tags).toContain("fallback");
+    expect(anchor?.quote).toBe(source.text.slice(anchor!.charStart, anchor!.charEnd));
+    expect(source.text).toContain(anchor?.quote);
+  });
+
   it("does not propose permanent memory cards from obvious secret snippets", () => {
     const cards = proposeMemoryCards(capture, [
       turn("turn-1", "下一步使用 api_key = sk-abcdefghijklmnopqrstuvwxyz123456 调用服务。")

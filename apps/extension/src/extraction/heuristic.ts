@@ -3,6 +3,7 @@ import {
   containsSecret,
   splitIntoSentences,
   truncateText,
+  truncateToCodePointBoundary,
   type ConversationCapture,
   type MemoryCard,
   type MemoryCardType,
@@ -221,14 +222,19 @@ function confidenceForType(type: MemoryCardType): number {
 
 function makeAnchor(turn: SourceTurn, quote: string): SourceAnchor {
   const charStart = turn.text.indexOf(quote);
+  const sourceStart = charStart >= 0 ? charStart : 0;
+  const sourceQuote = truncateToCodePointBoundary(
+    charStart >= 0 ? quote : turn.text.slice(0, 240),
+    240
+  );
 
   return {
     id: crypto.randomUUID(),
     archiveId: turn.archiveId,
     turnId: turn.id,
-    charStart: charStart >= 0 ? charStart : undefined,
-    charEnd: charStart >= 0 ? charStart + quote.length : undefined,
-    quote: truncateText(quote, 240)
+    charStart: sourceStart,
+    charEnd: sourceStart + sourceQuote.length,
+    quote: sourceQuote
   };
 }
 
