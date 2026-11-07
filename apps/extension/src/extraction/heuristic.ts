@@ -243,7 +243,7 @@ function dedupeCandidates(candidates: Candidate[]): Candidate[] {
   const result: Candidate[] = [];
 
   for (const candidate of candidates) {
-    const key = candidate.body.toLowerCase().replace(/\s+/g, " ").slice(0, 140);
+    const key = candidate.body.toLowerCase().replace(/\s+/g, " ");
 
     if (seen.has(key)) {
       continue;

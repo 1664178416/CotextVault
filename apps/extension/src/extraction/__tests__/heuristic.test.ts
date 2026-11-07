@@ -78,6 +78,19 @@ describe("heuristic memory extraction", () => {
     expect(source.text).toContain(anchor?.quote);
   });
 
+  it("keeps distinct decisions that share a long opening", () => {
+    const sharedOpening = `Use local-first storage and source anchors ${"for reliable review ".repeat(8)}`;
+    const cards = proposeMemoryCards(capture, [
+      turn("turn-chatgpt", `${sharedOpening}for ChatGPT imports.`),
+      turn("turn-gemini", `${sharedOpening}for Gemini imports.`)
+    ]);
+
+    expect(cards.map((card) => card.body)).toEqual([
+      `${sharedOpening}for ChatGPT imports.`,
+      `${sharedOpening}for Gemini imports.`
+    ]);
+  });
+
   it("does not propose permanent memory cards from obvious secret snippets", () => {
     const cards = proposeMemoryCards(capture, [
       turn("turn-1", "下一步使用 api_key = sk-abcdefghijklmnopqrstuvwxyz123456 调用服务。")
