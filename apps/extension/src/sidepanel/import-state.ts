@@ -128,6 +128,7 @@ export function parseConversationCaptureImportZip(
 ): unknown {
   let files: Record<string, Uint8Array>;
   let oversizedConversationsEntryBytes: number | undefined;
+  let conversationsEntryCount = 0;
   const maxConversationExportJsonBytes =
     options.maxConversationExportJsonBytes ?? MAX_CONVERSATION_EXPORT_JSON_BYTES;
 
@@ -135,6 +136,14 @@ export function parseConversationCaptureImportZip(
     files = unzipSync(bytes, {
       filter: (file) => {
         const isConversationsEntry = isConversationExportEntryName(file.name);
+
+        if (isConversationsEntry) {
+          conversationsEntryCount += 1;
+        }
+
+        if (conversationsEntryCount > 1) {
+          return false;
+        }
 
         if (isConversationsEntry && file.originalSize > maxConversationExportJsonBytes) {
           oversizedConversationsEntryBytes = file.originalSize;
@@ -146,6 +155,10 @@ export function parseConversationCaptureImportZip(
     });
   } catch {
     throw new Error("Import ZIP is not readable.");
+  }
+
+  if (conversationsEntryCount > 1) {
+    throw new Error("Import ZIP contains multiple conversations.json files.");
   }
 
   const conversationsEntry = findZipEntry(files, "conversations.json");

@@ -401,6 +401,17 @@ describe("vault import state helpers", () => {
     ]);
   });
 
+  it("rejects ambiguous ZIP imports with multiple conversations.json entries", () => {
+    const zip = zipSync({
+      "export-a/conversations.json": strToU8(JSON.stringify([chatGptExportConversation()])),
+      "export-b/conversations.json": strToU8("[]")
+    });
+
+    expect(() => parseConversationCaptureImportZip(zip)).toThrow(
+      "Import ZIP contains multiple conversations.json files"
+    );
+  });
+
   it("checks decompressed conversations.json size against estimated storage", () => {
     const zip = zipSync({
       "chatgpt-export/conversations.json": strToU8(JSON.stringify([chatGptExportConversation()]))
