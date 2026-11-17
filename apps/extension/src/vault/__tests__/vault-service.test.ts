@@ -923,6 +923,21 @@ describe("vault service workflow", () => {
     expect(archive.archive.warnings.map((warning) => warning.code)).toContain("secret_content_detected");
   });
 
+  it("classifies manual todo owner metadata before storing the card", async () => {
+    const repository = new MemoryRepository();
+    const service = createVaultService(repository);
+    const card = await service.createManualMemoryCard({
+      title: "Follow up on review",
+      body: "Confirm the next project milestone.",
+      type: "todo",
+      scope: "project",
+      owner: "alice@example.com"
+    });
+
+    expect(card.sensitivity).toBe("sensitive");
+    expect((await repository.listMemoryCards())[0]?.sensitivity).toBe("sensitive");
+  });
+
   it("includes field paths when rejecting malformed vault imports", async () => {
     const repository = new MemoryRepository();
     const service = createVaultService(repository);

@@ -660,6 +660,7 @@ function buildManualMemoryCard(
       scope: input.scope,
       sensitivity: "normal",
       tags: input.tags,
+      ...(input.owner ? { owner: input.owner } : {}),
       createdAt: now,
       updatedAt: now,
       sourceAnchors: []
